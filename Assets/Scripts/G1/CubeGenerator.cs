@@ -6,26 +6,36 @@ using UnityEngine.UI;
 public class CubeGenerator : MonoBehaviour
 {
     public InputField textInputField;
-    //public List<int> intList = new List<int>();
     public List<int> intList = new List<int>();
-
-    //public InputHandler iHandler = new InputHandler();
     public GameObject referenceCube;
+    //public GameObject labelPrefab;
 
-    public void InstantiateCubes()
+    public void InstantiateCubes(List<int> iList)
     {
 
-
-        intList.AddRange(new[] { 1, 2, 3, 4 });
-        int size = intList.Count;
+        int size = iList.Count;
         Debug.Log("Size: " + size);
-        
-        //make 1 cube for the size of the int list entered by the user
-        for (int i = 0; i < size -1; i++)
+        // Clear existing cubes before instantiating new ones
+        foreach (Transform child in transform)
         {
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            Instantiate(cube, new Vector3(0f, 0f, 0f), Quaternion.identity);
-            cube.transform.localScale = new Vector3(100, 400, 40);
+            Destroy(child.gameObject);
+        }
+        //TODO - FIXED : Bug, not creating the correct amount of blocks according to the size of the list
+        //make 1 cube for the size of the int list entered by the user
+        for (int i = 0; i < size; i++)
+        {
+            Debug.Log("Setting Scale for cube " + i);
+            GameObject newCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            //doesnt work
+            //GameObject newCube = Instantiate(cube, new Vector3(i * 2, 0f, 0f), Quaternion.identity);
+            newCube.transform.parent = transform;
+            newCube.transform.position = new Vector3(i * 2, 0, 0);
+            newCube.transform.localScale = new Vector3(100, 400, 40);
+
+            //Label assignment
+            //GameObject label = Instantiate(labelPrefab, newCube.transform.position, Quaternion.identity);
+            //label.transform.parent = newCube.transform;
+            //label.GetComponent<Text>().text = iList[i].ToString(); // Assign the number from intList to the label
         }
     }
   

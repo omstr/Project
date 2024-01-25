@@ -11,11 +11,14 @@ public class InputHandler : MonoBehaviour
     public TMP_InputField numberTMPInput;
     public TextMeshProUGUI sortedOutput;
     private string inputString;
-    public CubeGenerator cubeGenerator = new CubeGenerator();
+    public CubeGenerator cubeGenerator;
 
     public List<int> intList = new List<int>();
     public List<int> sortedList = new List<int>();
-
+    private void Start()
+    {
+        cubeGenerator = GameObject.FindObjectOfType<CubeGenerator>();
+    }
     public void ButtonInputted()
     {
         G1 g1 = new G1();
@@ -49,6 +52,6 @@ public class InputHandler : MonoBehaviour
         output.text = inputString;
         string sortedString = string.Join(",", sortedList);
         sortedOutput.text = sortedString;
-        //cubeGenerator.InstantiateCubes(intList);
+        cubeGenerator.InstantiateCubes(intList);
     }
 }
