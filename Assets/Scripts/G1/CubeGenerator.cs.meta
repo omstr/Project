@@ -3,7 +3,10 @@ guid: 0b59c70f862f4ff4ebffe4475f267360
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - textInputField: {instanceID: 0}
+  - referenceCube: {instanceID: 0}
+  - labelPrefab: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
