@@ -19,9 +19,9 @@ public class InputHandler : MonoBehaviour
     {
         cubeGenerator = GameObject.FindObjectOfType<CubeGenerator>();
     }
-    public void ButtonInputted()
+    public List<int> handleInput()
     {
-        G1 g1 = new G1();
+        
         inputString = textInputField.text;
         Debug.Log(inputString);
         //for each character in the string convert it to an integer and add it to an array
@@ -46,12 +46,49 @@ public class InputHandler : MonoBehaviour
         {
             Debug.Log(value);
         }
-
+        return intList;
+    }
+    public void ButtonInputted()
+    {
+        intList = this.handleInput();
+        G1 g1 = new G1();
         sortedList = g1.BubbleSort(intList);
 
         output.text = inputString;
+        
         string sortedString = string.Join(",", sortedList);
         sortedOutput.text = sortedString;
         cubeGenerator.InstantiateCubes(intList);
+    }
+    public void SortButton()
+    {
+        intList = this.handleInput();
+        StartCoroutine(SortedCoroutine(intList));
+
+    }
+    IEnumerator SortedCoroutine(List<int> inputList)
+    {
+        G1 g1 = new G1();
+        List<int> sortedList = new List<int>(inputList);
+
+        foreach (int value in g1.SteppedBubbleSort(inputList))
+        {
+            Debug.Log("the value in the stepped bubble sort is: " + value);
+
+            // Update UI or perform other operations as needed
+            string sortString = string.Join(",", sortedList);
+            sortedOutput.text = sortString;
+            cubeGenerator.InstantiateCubes(inputList);
+
+            // Introduce a delay of 1 second
+            yield return new WaitForSeconds(2f);
+        }
+
+        // Sorting is complete, handle the final results
+        output.text = string.Join(",", inputList);
+        string sortedString = string.Join(",", sortedList);
+        sortedOutput.text = sortedString;
+
+        cubeGenerator.InstantiateCubes(inputList);
     }
 }

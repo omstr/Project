@@ -22,6 +22,7 @@ public class CubeGenerator : MonoBehaviour
             Destroy(child.gameObject);
         }
         //TODO - FIXED : Bug, not creating the correct amount of blocks according to the size of the list
+
         //make 1 cube for the size of the int list entered by the user
         float startingPosX = -7;
         float startingPosY = -2;
@@ -43,8 +44,9 @@ public class CubeGenerator : MonoBehaviour
             TextMeshProUGUI textMeshPro = label.GetComponent<TextMeshProUGUI>();
             if (textMeshPro != null)
             {
+                textMeshPro.enabled = true;
                 textMeshPro.text = iList[i].ToString();
-                textMeshPro.fontSize = 2;
+                textMeshPro.fontSize = 1;
                 textMeshPro.alignment = TextAlignmentOptions.Center;
 
             }
@@ -53,6 +55,10 @@ public class CubeGenerator : MonoBehaviour
                 Debug.LogError("TextMeshProUGUI component not found on the label prefab!");
             }
         }
+    }
+    public void swapCubes(List<GameObject> currentCubes)
+    {
+
     }
   
   
