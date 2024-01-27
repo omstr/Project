@@ -69,7 +69,7 @@ public class G1 : MonoBehaviour
         int size = sortedList.Count;
         bool swapped;
 
-        do
+        for (int pass = 0; pass < 1; pass++) // Perform only one pass
         {
             swapped = false;
 
@@ -89,10 +89,12 @@ public class G1 : MonoBehaviour
             // After each pass, the largest element will be at the end, so reduce the range
             size--;
 
-            //TODO: probably have to implement stops here for the question part
-
-        } while (swapped);
-
+            // Break out of the loop after the first pass
+            if (!swapped)
+            {
+                break;
+            }
+        }
 
         return sortedList;
     }
