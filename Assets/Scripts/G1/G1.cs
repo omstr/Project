@@ -8,19 +8,26 @@ using System;
 
 public class G1 : MonoBehaviour
 {
-    public TextMeshProUGUI output;
-    public InputField textInputField;
-    public TMP_InputField numberTMPInput;
-    public TextMeshProUGUI sortedOutput;
-    private InputHandler iHandler;
-    private string inputString;
     public CubeGenerator cubeGenerator;
+    //public G1 g1
 
+    private void Awake()
+    {
+        cubeGenerator = GameObject.FindObjectOfType<CubeGenerator>();
+        if (cubeGenerator == null)
+        {
+            Debug.LogError("CubeGenerator not found in the scene.");
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-
+        cubeGenerator = GameObject.FindObjectOfType<CubeGenerator>();
+        if (cubeGenerator == null)
+        {
+            Debug.LogError("CubeGenerator not found in the scene.");
+        }
     }
 
     // Update is called once per frame
@@ -35,9 +42,6 @@ public class G1 : MonoBehaviour
         List<int> sortedList = new List<int>(list); 
         int size = sortedList.Count;
         bool swapped;
-
-        iHandler = new InputHandler();
-
         do
         {
             swapped = false;
@@ -63,11 +67,14 @@ public class G1 : MonoBehaviour
 
         return sortedList;
     }
+
+    // For an absolutely unknown reason this method doesnt want to call methods from any other class and i wasted a day on it maybe i'm being stupid but i just moved it to InputHandler
     public List<int> SteppedBubbleSort(List<int> list)
     {
         List<int> sortedList = new List<int>(list);
         int size = sortedList.Count;
         bool swapped;
+        //this.SetCubeGenerator(cubeGenerator);
 
         do
         {
@@ -77,7 +84,6 @@ public class G1 : MonoBehaviour
             {
                 if (sortedList[i - 1] > sortedList[i])
                 {
-                    // Swap elements
                     int temp = sortedList[i - 1];
                     sortedList[i - 1] = sortedList[i];
                     sortedList[i] = temp;
@@ -86,13 +92,26 @@ public class G1 : MonoBehaviour
                 }
             }
 
-            // After each pass, the largest element will be at the end, so reduce the range
-            size--;
+            // After each pass, destroy the previously instantiated cubes from the enter button and instantiate new ones
+            Debug.Log("Before destroying cubes. CubeGenerator: " + cubeGenerator);
+            cubeGenerator.grabandDestroyCubes();
+            Debug.Log("After destroying cubes.");
+            Debug.Log("Before instantiating cubes. CubeGenerator: " + cubeGenerator);
+            cubeGenerator.InstantiateCubes(sortedList);
+            Debug.Log("After instantiating cubes.");
+            string sortedString = string.Join(",", sortedList);
+            //this.sortedOutput.text = sortedString;
 
-            //TODO: probably have to implement stops here for the question part
+
+            // Introduce a delay if needed
+            // yield return new WaitForSeconds(delayInSeconds);
+
+            // Reduce the range for the next pass
+            size--;
 
         } while (swapped);
 
+        Debug.Log("Sorting Complete");
 
         return sortedList;
     }
