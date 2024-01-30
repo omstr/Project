@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class InputHandler : MonoBehaviour
 {
@@ -11,14 +13,31 @@ public class InputHandler : MonoBehaviour
     public InputField textInputField;
     public TMP_InputField numberTMPInput;
     public TextMeshProUGUI sortedOutput;
+    public TextMeshProUGUI questionBox;
+    public InputField answerBox;
+    public GameObject questionObject;
+    public GameObject answerObject;
     private string inputString;
     public CubeGenerator cubeGenerator;
+    public GameObject prismObject;
 
     public List<int> intList = new List<int>();
     public List<int> sortedList = new List<int>();
     private void Start()
     {
         cubeGenerator = GameObject.FindObjectOfType<CubeGenerator>();
+    }
+    public void Trigger(GameObject gameObject)
+    {
+        if (gameObject.activeInHierarchy == false)
+        {
+            gameObject.SetActive(true);
+
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
     public List<int> handleInput()
     {
@@ -104,9 +123,11 @@ public class InputHandler : MonoBehaviour
     IEnumerator SteppedBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
         List<int> sortedList = new List<int>(list);
+        List<int> prevPassList = new List<int>();
         int size = sortedList.Count;
         bool swapped;
-
+        prismObject = GameObject.Find("Prism");
+        List<GameObject> cubeObjects = new List<GameObject>();
         do
         {
             swapped = false;
@@ -115,19 +136,20 @@ public class InputHandler : MonoBehaviour
             {
                 if (sortedList[i - 1] > sortedList[i])
                 {
+                    prevPassList = sortedList;
                     int temp = sortedList[i - 1];
                     sortedList[i - 1] = sortedList[i];
                     sortedList[i] = temp;
 
                     // After each pass, destroy the previously instantiated cubes from the enter button and instantiate new ones
-                    Debug.Log("Before destroying cubes. CubeGenerator: " + cubeGenerator);
                     cubeGenerator.grabandDestroyCubes();
-                    Debug.Log("After destroying cubes.");
-                    Debug.Log("Before instantiating cubes. CubeGenerator: " + cubeGenerator);
                     cubeGenerator.InstantiateCubes(sortedList);
-                    Debug.Log("After instantiating cubes.");
-                    string sortedString = string.Join(",", sortedList);
 
+                    cubeObjects = cubeGenerator.grabCubes();
+
+                    
+                    string sortedString = string.Join(",", sortedList);
+                    sortedOutput.text = sortedString;
                     // Introduce a delay
                     yield return new WaitForSeconds(1f);
                     swapped = true;
@@ -146,10 +168,54 @@ public class InputHandler : MonoBehaviour
         // Invoke the callback with the sorted list
         onComplete?.Invoke(sortedList);
     }
-
-    public void SortButton(int currentIteration)
+    IEnumerator SteppedObjectBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
-        intList = this.grabCubeText();
+        List<int> prevPassList = new List<int>();
+        int size = list.Count;
+        bool swapped;
+        prismObject = GameObject.Find("Prism");
+        List<GameObject> cubeObjects = new List<GameObject>();
+        cubeObjects = cubeGenerator.grabCubes();
+
+        do
+        {
+            swapped = false;
+
+            for (int i = 1; i < size; i++)
+            {
+                if (cubeObjects[i - 1].name.CompareTo(cubeObjects[i].name) > 0)
+                {
+                    prevPassList = list;
+
+                    // Swap the names of cubeObjects[i-1] and cubeObjects[i]
+                    string tempName = cubeObjects[i - 1].name;
+                    cubeObjects[i - 1].name = cubeObjects[i].name;
+                    cubeObjects[i].name = tempName;
+
+                    string sortedString = string.Join(",", cubeObjects.Select(cube => int.Parse(cube.name)));
+                    sortedOutput.text = sortedString;
+                    cubeGenerator.UpdateLabels(cubeObjects);
+                    // Introduce a delay
+                    yield return new WaitForSeconds(1f);
+                    swapped = true;
+                }
+            }
+
+            // Reduce the range for the next pass
+            size--;
+
+        } while (swapped);
+
+        Debug.Log("Sorting Complete");
+
+        // Invoke the callback with the sorted list
+        onComplete?.Invoke(cubeObjects.Select(cube => int.Parse(cube.name)).ToList());
+    }
+
+
+    public void SortButton()
+    {
+        intList = cubeGenerator.grabCubeNames();
 
         StartCoroutine(SteppedBubbleSortCoroutine(intList, (sortedList) =>
         {
@@ -160,100 +226,88 @@ public class InputHandler : MonoBehaviour
         }));
         sortedList.Clear();
     }
-    public List<GameObject> grabCubes() 
+    public void SortObjectsButton()
     {
-        Transform game1Transform = transform.parent.Find("Game1");
+        List<int> cubeNames = cubeGenerator.grabCubeNames();
 
-        if (game1Transform != null)
+        StartCoroutine(SteppedObjectBubbleSortCoroutine(cubeNames, (sortedCubeNames) =>
         {
-            // Ensure the cubeGenTransform is found under game1Transform
-            Transform cubeGenTransform = game1Transform.Find("CubeGen");
-
-            if (cubeGenTransform != null)
-            {
-                List<GameObject> cubeObjects = new List<GameObject>();
-
-                // Iterate through children of "CubeGen"
-                foreach (Transform child in cubeGenTransform)
-                {
-                    // Check if the child has the specified tag
-                    if (child.CompareTag("CubeTag"))
-                    {
-                        cubeObjects.Add(child.gameObject);
-                        
-                    }
-                }
-                return cubeObjects;
-
-                // ... rest of the code remains the same
-            }
-            else
-            {
-                Debug.LogError("Could not find CubeGen transform under Game1.");
-            }
-        }
-        else
-        {
-            Debug.LogError("Could not find Game1 transform.");
-        }
-        return null;
+            // Handle the sorted list here
+            output.text = "Sorting complete";
+            string sortedString = string.Join(",", sortedCubeNames);
+            sortedOutput.text = sortedString;
+        }));
+    }
+    public void TeachSteppedBubbleSort(List<int> list)
+    {
+        List<int> sortedList = new List<int>(list);
+        List<GameObject> cubeObjects = new List<GameObject>();
+        int size = sortedList.Count;
+        int correctAnswer;
         
+        bool swapped;
+        G1 g1 = new G1();
+        List<int> ansSortedList = new List<int>();
+        ansSortedList = g1.BubbleSort(list);
+        prismObject = GameObject.Find("Prism");
+        cubeObjects = cubeGenerator.grabCubes();
+        TextMeshProUGUI questionTextMeshPro = questionBox.GetComponent<TextMeshProUGUI>();
+        questionBox.text = "Perform Bubble Sort Starting from the Left";
+        Trigger(questionObject);
+        Trigger(answerObject);
+
+        //if (cubeObjects.Count > 0)
+        //{
+        //    Pick a random index within the boundaries of the list
+        //    int randomIndex = Random.Range(0, cubeObjects.Count);
+
+        //    Get the GameObject at the random index
+        //   highlightedObject = cubeObjects[randomIndex];
+
+        //    Now 'highlightedObject' contains a randomly selected GameObject from the list
+        //    Debug.Log("Highlighted Object Name: " + highlightedObject.name);
+
+        //    Move the prism above the x-coordinate of the highlighted object
+        //    MovePrismAboveHighlightedObject(highlightedObject);
+        //}
+        //else
+        //{
+        //    Debug.LogWarning("No cube objects found in the list.");
+        //}
+
     }
-    public List<int> grabCubeText()
+    private void MovePrismAboveHighlightedObject(GameObject highlightedObject)
     {
-        Transform game1Transform = transform.parent.Find("Game1");
 
-        if (game1Transform != null)
+        // Check if the highlightedObject is not null and the prismObject is assigned
+        if (highlightedObject != null && prismObject != null)
         {
-            // Ensure the cubeGenTransform is found under game1Transform
-            Transform cubeGenTransform = game1Transform.Find("CubeGen");
+            prismObject.SetActive(true);
+            // Get the x-coordinate of the highlighted object
+            float xCoordinate = highlightedObject.transform.position.x;
 
-            if (cubeGenTransform != null)
-            {
-                List<int> labelTexts = new List<int>();
-
-                // Iterate through children of "CubeGen"
-                foreach (Transform child in cubeGenTransform)
-                {
-                    
-                    if (child.CompareTag("CubeTag"))
-                    {
-                        // TextMeshProUGUI component is directly on the child object
-                        TextMeshProUGUI textMeshPro = child.GetComponentInChildren<TextMeshProUGUI>();
-
-                        if (textMeshPro != null)
-                        {
-                            // parse the text to an integer
-                            if (int.TryParse(textMeshPro.text, out int labelValue))
-                            {
-                                labelTexts.Add(labelValue);
-                            }
-                            else
-                            {
-                                Debug.LogError("Failed to parse label text to int: " + textMeshPro.text);
-                            }
-                        }
-                        else
-                        {
-                            Debug.LogError("TextMeshProUGUI component not found on the cube.");
-                        }
-                    }
-                }
-
-                return labelTexts;
-            }
-            else
-            {
-                Debug.LogError("Could not find CubeGen transform under Game1.");
-            }
+            // Set the position of the prism above the x-coordinate of the highlighted object
+            prismObject.transform.position = new Vector3(xCoordinate, prismObject.transform.position.y, prismObject.transform.position.z);
         }
         else
         {
-            Debug.LogError("Could not find Game1 transform.");
+            Debug.LogError("Highlighted object or prism object is null. Assign valid GameObjects in the inspector.");
         }
-
-        return null;
     }
+    public void teachSortButton()
+    {
+        
+        intList = cubeGenerator.grabCubeText();
+
+        TeachSteppedBubbleSort(intList);
+        // Handle the sorted list here
+        output.text = inputString;
+        string sortedString = string.Join(",", sortedList);
+        sortedOutput.text = sortedString;
+        
+        sortedList.Clear();
+    }
+    
     /* Old sort before coroutine 
     public void SortButton()
     {

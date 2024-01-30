@@ -33,7 +33,7 @@ public class SortingController : MonoBehaviour
         // Ensure the InputHandler instance is not null
         if (iHandler != null)
         {
-            iHandler.SortButton(currentIteration);
+            //iHandler.SortButton(currentIteration);
         }
         else
         {
