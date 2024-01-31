@@ -18,9 +18,10 @@ public class InputHandler : MonoBehaviour
     public GameObject questionObject;
     public GameObject answerObject;
     private string inputString;
+    private float delayInSeconds = 1f;
     public CubeGenerator cubeGenerator;
     public GameObject prismObject;
-
+    public Slider delaySlider;
     public List<int> intList = new List<int>();
     public List<int> sortedList = new List<int>();
     private void Start()
@@ -81,6 +82,8 @@ public class InputHandler : MonoBehaviour
         string sortedString = string.Join(",", sortedList);
         sortedOutput.text = sortedString;
         cubeGenerator.InstantiateCubes(intList);
+        List<GameObject> cubeObjects = cubeGenerator.grabCubes();
+        MovePrismAboveHighlightedObject(cubeObjects[0]);
         sortedList.Clear();
         intList.Clear();
     }
@@ -176,7 +179,7 @@ public class InputHandler : MonoBehaviour
         prismObject = GameObject.Find("Prism");
         List<GameObject> cubeObjects = new List<GameObject>();
         cubeObjects = cubeGenerator.grabCubes();
-
+        MovePrismAboveHighlightedObject(cubeObjects[0]);
         do
         {
             swapped = false;
@@ -185,21 +188,30 @@ public class InputHandler : MonoBehaviour
             {
                 if (cubeObjects[i - 1].name.CompareTo(cubeObjects[i].name) > 0)
                 {
+                    //prismObject.SetActive(true);
                     prevPassList = list;
-
+                    MovePrismAboveHighlightedObject(cubeObjects[i-1]);
                     // Swap the names of cubeObjects[i-1] and cubeObjects[i]
                     string tempName = cubeObjects[i - 1].name;
                     cubeObjects[i - 1].name = cubeObjects[i].name;
                     cubeObjects[i].name = tempName;
+                    MovePrismAboveHighlightedObject(cubeObjects[i]);
 
                     string sortedString = string.Join(",", cubeObjects.Select(cube => int.Parse(cube.name)));
                     sortedOutput.text = sortedString;
                     cubeGenerator.UpdateLabels(cubeObjects);
+                    float adjustedDelay = delayInSeconds * delaySlider.value;
                     // Introduce a delay
-                    yield return new WaitForSeconds(1f);
+                    yield return new WaitForSeconds(adjustedDelay);
                     swapped = true;
+                    if(swapped == false)
+                    {
+                        MovePrismAboveHighlightedObject(cubeObjects[i+1]);
+                    }
                 }
+                
             }
+            
 
             // Reduce the range for the next pass
             size--;
@@ -249,12 +261,51 @@ public class InputHandler : MonoBehaviour
         G1 g1 = new G1();
         List<int> ansSortedList = new List<int>();
         ansSortedList = g1.BubbleSort(list);
-        prismObject = GameObject.Find("Prism");
+        
         cubeObjects = cubeGenerator.grabCubes();
         TextMeshProUGUI questionTextMeshPro = questionBox.GetComponent<TextMeshProUGUI>();
-        questionBox.text = "Perform Bubble Sort Starting from the Left";
+        questionBox.text = "Perform Bubble Sort";
         Trigger(questionObject);
         Trigger(answerObject);
+        do
+        {
+            swapped = false;
+
+            for (int i = 1; i < size; i++)
+            {
+                if (cubeObjects[i - 1].name.CompareTo(cubeObjects[i].name) > 0)
+                {
+                    //prismObject.SetActive(true);
+                    questionBox.text = cubeObjects[i-1].name + " > " + cubeObjects[i].name + "? ";
+                    MovePrismAboveHighlightedObject(cubeObjects[i - 1]);
+                    // Swap the names of cubeObjects[i-1] and cubeObjects[i]
+                    string tempName = cubeObjects[i - 1].name;
+                    cubeObjects[i - 1].name = cubeObjects[i].name;
+                    cubeObjects[i].name = tempName;
+                    MovePrismAboveHighlightedObject(cubeObjects[i]);
+
+                    string sortedString = string.Join(",", cubeObjects.Select(cube => int.Parse(cube.name)));
+                    sortedOutput.text = sortedString;
+                    cubeGenerator.UpdateLabels(cubeObjects);
+                    float adjustedDelay = delayInSeconds * delaySlider.value;
+                    // Introduce a delay
+                    //yield return new WaitForSeconds(adjustedDelay);
+                    swapped = true;
+                    if (swapped == false)
+                    {
+                        MovePrismAboveHighlightedObject(cubeObjects[i + 1]);
+                    }
+                }
+
+            }
+
+
+            // Reduce the range for the next pass
+            size--;
+
+        } while (swapped);
+
+
 
         //if (cubeObjects.Count > 0)
         //{

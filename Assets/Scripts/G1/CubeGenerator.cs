@@ -11,6 +11,8 @@ public class CubeGenerator : MonoBehaviour
     public GameObject referenceCube;
     public GameObject labelPrefab;
     public Transform cubeGenTransform;
+    private bool isDragging = false;
+    private Vector3 offset;
 
 
     public void InstantiateCubes(List<int> iList)
@@ -34,6 +36,9 @@ public class CubeGenerator : MonoBehaviour
         {
             
             GameObject newCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            newCube.AddComponent<CubeMovement>();
+            //Collider collider = newCube.AddComponent<BoxCollider>();
+            //collider.isTrigger = true;
             newCube.transform.parent = cubeGenTransform;
             newCube.tag = "CubeTag";
             //newCube.name = "Cube" + i;
@@ -345,10 +350,10 @@ public class CubeGenerator : MonoBehaviour
         }
 
     }
-    public void swapCubes(List<GameObject> currentCubes)
-    {
 
-    }
-  
-  
+
+
+    
+
+
 }

@@ -1768,6 +1768,7 @@ MonoBehaviour:
   answerObject: {fileID: 1336358955}
   cubeGenerator: {fileID: 806121266}
   prismObject: {fileID: 1231823418}
+  delaySlider: {fileID: 923599831}
   intList: 
   sortedList: 
 --- !u!114 &806121266
@@ -2151,7 +2152,7 @@ GameObject:
   - component: {fileID: 923599830}
   - component: {fileID: 923599831}
   m_Layer: 5
-  m_Name: progressionSlider
+  m_Name: delaySlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2223,10 +2224,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 1541987234}
   m_HandleRect: {fileID: 967323550}
   m_Direction: 0
-  m_MinValue: 0
-  m_MaxValue: 1
-  m_WholeNumbers: 0
-  m_Value: 0
+  m_MinValue: 1
+  m_MaxValue: 15
+  m_WholeNumbers: 1
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2453,6 +2454,7 @@ GameObject:
   - component: {fileID: 1194244558}
   - component: {fileID: 1194244557}
   - component: {fileID: 1194244556}
+  - component: {fileID: 1194244559}
   m_Layer: 5
   m_Name: Cube
   m_TagString: Untagged
@@ -2550,6 +2552,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1194244554}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1194244559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1194244554}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a3358a710c955445b9f0eb7e6edeacc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1231823418
 GameObject:
   m_ObjectHideFlags: 0
@@ -2570,7 +2584,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1231823419
 Transform:
   m_ObjectHideFlags: 0
@@ -4053,6 +4067,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1683627513}
+  - component: {fileID: 1683627514}
   m_Layer: 5
   m_Name: CubeGen
   m_TagString: Untagged
@@ -4079,6 +4094,18 @@ RectTransform:
   m_AnchoredPosition: {x: -441, y: -231}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1683627514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1683627512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a3358a710c955445b9f0eb7e6edeacc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2002935846
 GameObject:
   m_ObjectHideFlags: 0
