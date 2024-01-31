@@ -37,8 +37,20 @@ public class CubeGenerator : MonoBehaviour
             
             GameObject newCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             newCube.AddComponent<CubeMovement>();
-            //Collider collider = newCube.AddComponent<BoxCollider>();
-            //collider.isTrigger = true;
+            Collider collider = newCube.GetComponent<Collider>();
+
+            // Check if a collider is present
+            if (collider != null)
+            {
+                // Set the collider as a trigger
+                collider.isTrigger = true;
+            }
+            else
+            {
+                // Add a collider component to the cube and set it as a trigger
+                collider = newCube.AddComponent<BoxCollider>();
+                collider.isTrigger = true;
+            }
             newCube.transform.parent = cubeGenTransform;
             newCube.tag = "CubeTag";
             //newCube.name = "Cube" + i;

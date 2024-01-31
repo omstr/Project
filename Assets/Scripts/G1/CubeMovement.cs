@@ -3,70 +3,75 @@ using UnityEngine;
 
 public class CubeMovement : MonoBehaviour
 {
+    private bool canDrag = true;
     private bool isDragging = false;
+    private Vector3 initialPosition;
     private Vector3 offset;
 
-    void OnMouseDown()
+    private void OnMouseDown()
     {
-        isDragging = true;
-        offset = transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f));
+        if (canDrag)
+        {
+            // Store the initial position when the cube is clicked
+            initialPosition = transform.position;
+
+            // Calculate the offset between the clicked point on the cube and the mouse position
+            offset = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            // Set isDragging to true
+            isDragging = true;
+        }
     }
 
-    void OnMouseUp()
-    {
-        isDragging = false;
-    }
-
-    void Update()
+    private void OnMouseUp()
     {
         if (isDragging)
         {
+            // Check if the cube is over another cube
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                GameObject otherCube = hit.collider.gameObject;
+
+                if (otherCube.CompareTag("CubeTag"))
+                {
+                    // Swap names and labels
+                    SwapNamesAndLabels(this.gameObject, otherCube);
+                }
+            }
+
+            // Reset isDragging to false
+            isDragging = false;
+
+            // Reset the position only if dragging was enabled
+            transform.position = initialPosition;
+        }
+    }
+
+    private void Update()
+    {
+        if (isDragging)
+        {
+            // Update the position of the cube while dragging
             Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f);
             Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
             transform.position = curPosition;
         }
     }
-    void OnTriggerEnter(Collider other)
+
+    private void SwapNamesAndLabels(GameObject cube1, GameObject cube2)
     {
-        if (isDragging)
-        {
-            CubeMovement otherCube = other.GetComponent<CubeMovement>();
-            if (otherCube != null && otherCube != this)
-            {
-                SwapCubeProperties(otherCube);
-                otherCube.SwapCubeProperties(this);
-            }
-        }
-    }
-    //void OnMouseOver()
-    //{
-    //    if (isDragging)
-    //    {
-    //        RaycastHit hit;
-    //        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        // Swap names
+        string tempName = cube1.name;
+        cube1.name = cube2.name;
+        cube2.name = tempName;
 
-    //        if (Physics.Raycast(ray, out hit))
-    //        {
-    //            CubeMovement otherCube = hit.collider.GetComponent<CubeMovement>();
-    //            if (otherCube != null && otherCube != this)
-    //            {
-    //                SwapCubeProperties(otherCube);
-    //                otherCube.SwapCubeProperties(this);
-    //            }
-    //        }
-    //    }
-    //}
-
-    private void SwapCubeProperties(CubeMovement otherCube)
-    {
-        // Add your logic here to swap properties between cubes
-        // For example, swapping names or labels
-        string tempName = otherCube.gameObject.name;
-        otherCube.gameObject.name = gameObject.name;
-        gameObject.name = tempName;
-
-        TextMeshProUGUI tempLabel = gameObject.GetComponentInChildren<TextMeshProUGUI>();
-        TextMeshProUGUI otherLabel = otherCube.GetComponentInChildren<TextMeshProUGUI>();
+        // You can implement similar logic to swap labels if needed
+        // For example, you might have TextMeshProUGUI components on each cube that you need to swap
+        TextMeshProUGUI tempLabel = cube1.GetComponentInChildren<TextMeshProUGUI>();
+        TextMeshProUGUI otherLabel = cube2.GetComponentInChildren<TextMeshProUGUI>();
 
         if (tempLabel != null && otherLabel != null)
         {
