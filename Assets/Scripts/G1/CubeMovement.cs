@@ -3,11 +3,19 @@ using UnityEngine;
 
 public class CubeMovement : MonoBehaviour
 {
-    private bool canDrag = true;
+    private bool canDrag = false;
     private bool isDragging = false;
     private Vector3 initialPosition;
     private Vector3 offset;
 
+    public void EnableDrag()
+    {
+        canDrag = true;
+    }
+    public void DisableDrag()
+    {
+        canDrag = false;
+    }
     private void OnMouseDown()
     {
         if (canDrag)
@@ -18,7 +26,7 @@ public class CubeMovement : MonoBehaviour
             // Calculate the offset between the clicked point on the cube and the mouse position
             offset = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-            // Set isDragging to true
+            
             isDragging = true;
         }
     }
@@ -68,8 +76,7 @@ public class CubeMovement : MonoBehaviour
         cube1.name = cube2.name;
         cube2.name = tempName;
 
-        // You can implement similar logic to swap labels if needed
-        // For example, you might have TextMeshProUGUI components on each cube that you need to swap
+        // implement similar logic to swap labels 
         TextMeshProUGUI tempLabel = cube1.GetComponentInChildren<TextMeshProUGUI>();
         TextMeshProUGUI otherLabel = cube2.GetComponentInChildren<TextMeshProUGUI>();
 

@@ -24,6 +24,8 @@ public class InputHandler : MonoBehaviour
     public Slider delaySlider;
     public List<int> intList = new List<int>();
     public List<int> sortedList = new List<int>();
+    public Image tickImage;
+    public Image crossImage;
     private void Start()
     {
         cubeGenerator = GameObject.FindObjectOfType<CubeGenerator>();
@@ -250,82 +252,163 @@ public class InputHandler : MonoBehaviour
             sortedOutput.text = sortedString;
         }));
     }
-    public void TeachSteppedBubbleSort(List<int> list)
+    public IEnumerator TeachSteppedBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
         List<int> sortedList = new List<int>(list);
-        List<GameObject> cubeObjects = new List<GameObject>();
+        List<int> prevPassList = new List<int>();
         int size = sortedList.Count;
-        int correctAnswer;
-        
         bool swapped;
-        G1 g1 = new G1();
-        List<int> ansSortedList = new List<int>();
-        ansSortedList = g1.BubbleSort(list);
-        
+        prismObject = GameObject.Find("Prism");
+        List<GameObject> cubeObjects = new List<GameObject>();
         cubeObjects = cubeGenerator.grabCubes();
-        TextMeshProUGUI questionTextMeshPro = questionBox.GetComponent<TextMeshProUGUI>();
-        questionBox.text = "Perform Bubble Sort";
-        Trigger(questionObject);
-        Trigger(answerObject);
+
+        List<int> cubeNames = new List<int>();
+        MovePrismAboveHighlightedObject(cubeObjects[0]);
         do
         {
             swapped = false;
 
             for (int i = 1; i < size; i++)
             {
-                if (cubeObjects[i - 1].name.CompareTo(cubeObjects[i].name) > 0)
+                if (sortedList[i - 1] > sortedList[i])
                 {
-                    //prismObject.SetActive(true);
-                    questionBox.text = cubeObjects[i-1].name + " > " + cubeObjects[i].name + "? ";
+                    prevPassList = sortedList;
                     MovePrismAboveHighlightedObject(cubeObjects[i - 1]);
-                    // Swap the names of cubeObjects[i-1] and cubeObjects[i]
-                    string tempName = cubeObjects[i - 1].name;
-                    cubeObjects[i - 1].name = cubeObjects[i].name;
-                    cubeObjects[i].name = tempName;
+                    int temp = sortedList[i - 1];
+                    sortedList[i - 1] = sortedList[i];
+                    sortedList[i] = temp;
                     MovePrismAboveHighlightedObject(cubeObjects[i]);
 
-                    string sortedString = string.Join(",", cubeObjects.Select(cube => int.Parse(cube.name)));
-                    sortedOutput.text = sortedString;
-                    cubeGenerator.UpdateLabels(cubeObjects);
-                    float adjustedDelay = delayInSeconds * delaySlider.value;
-                    // Introduce a delay
-                    //yield return new WaitForSeconds(adjustedDelay);
-                    swapped = true;
-                    if (swapped == false)
-                    {
-                        MovePrismAboveHighlightedObject(cubeObjects[i + 1]);
-                    }
-                }
+                    
+                    cubeObjects = cubeGenerator.grabCubes();
 
+
+                    string sortedString = string.Join(",", sortedList);
+                    sortedOutput.text = sortedString;
+                    // Introduce a delay
+                    yield return StartCoroutine(WaitForUserSwap(cubeObjects));
+                    cubeNames = cubeGenerator.grabCubeNames();
+                    // Compare cubeNames to sortedList after each pass
+                    if (ListsAreEqual(cubeNames, sortedList))
+                    {
+                        Debug.Log("The list of the cube names" + cubeNames.ToString());
+                        Debug.Log("The sorted list from the bubble sort" + sortedList.ToString());
+                        tickImage.enabled = true;
+                        SpawnImageOverCube(cubeObjects[i]);
+                        output.text = "Correct";
+                    }
+                    else
+                    {
+                        Debug.Log("The list of the cube names" + cubeNames);
+                        Debug.Log("The sorted list from the bubble sort" + sortedList);
+                        SpawnImageOverCube(cubeObjects[i]);
+                        crossImage.enabled = true;
+                        output.text = "Incorrect";
+                    }
+                    swapped = true;
+                }
             }
+
 
 
             // Reduce the range for the next pass
             size--;
 
-        } while (swapped);
+        } while (swapped && size > 1);
 
+        Debug.Log("Sorting Complete");
 
+        // Invoke the callback with the sorted list
+        onComplete?.Invoke(sortedList);
 
-        //if (cubeObjects.Count > 0)
-        //{
-        //    Pick a random index within the boundaries of the list
-        //    int randomIndex = Random.Range(0, cubeObjects.Count);
+    }
+    private void SpawnImageOverCube(GameObject cube)
+    {
+        // Spawn the tickImage over the cube's position
+        Transform game1Transform = transform.parent.Find("Game1");
 
-        //    Get the GameObject at the random index
-        //   highlightedObject = cubeObjects[randomIndex];
+        Instantiate(tickImage, cube.transform.position, Quaternion.identity);
 
-        //    Now 'highlightedObject' contains a randomly selected GameObject from the list
-        //    Debug.Log("Highlighted Object Name: " + highlightedObject.name);
+        Debug.Log("Spawned tick image at: " + tickImage.transform.position);
+        Debug.Log("Cube position: " + cube.transform.position);
+    }
+    private bool ListsAreEqual(List<int> list1, List<int> list2)
+    {
+        // Check if two lists are equal
+        return list1.SequenceEqual(list2);
+    }
 
-        //    Move the prism above the x-coordinate of the highlighted object
-        //    MovePrismAboveHighlightedObject(highlightedObject);
-        //}
-        //else
-        //{
-        //    Debug.LogWarning("No cube objects found in the list.");
-        //}
+    private IEnumerator WaitForUserSwap(List<GameObject> cubeObjects)
+    {
+        bool userSwapped = false;
 
+        List<int> initialNames = cubeObjects.Select(cube => int.Parse(cube.name)).ToList();
+
+        List<bool> cubeDraggedFlags = new List<bool>(cubeObjects.Count);
+
+        // Initialize flags to false
+        for (int i = 0; i < cubeObjects.Count; i++)
+        {
+            cubeDraggedFlags.Add(false);
+        }
+        // Set the cubes to be draggable
+        foreach (var cube in cubeObjects)
+        {
+            var cubeMovement = cube.GetComponent<CubeMovement>();
+            if (cubeMovement != null)
+            {
+                cubeMovement.EnableDrag();
+            }
+        }
+
+        // Wait for a brief moment before starting to check for changes
+        yield return new WaitForSeconds(0.1f);
+
+        // Continue checking for changes until at least two cubes have been dragged
+        while (!userSwapped)
+        {
+            // Wait for the next frame to avoid performance issues
+            yield return null;
+
+            // Check if at least two cubes have been dragged
+            for (int i = 0; i < cubeObjects.Count; i++)
+            {
+                if (!cubeDraggedFlags[i])
+                {
+                    // If the cube hasn't been dragged, check if its name has changed
+                    if (int.Parse(cubeObjects[i].name) != initialNames[i])
+                    {
+                        cubeDraggedFlags[i] = true;
+                    }
+                }
+            }
+
+            // Check if at least two cubes have been dragged
+            if (cubeDraggedFlags.Count(flag => flag) >= 2)
+            {
+                userSwapped = true;
+            }
+        }
+
+        //disable cube dragging
+        foreach (var cube in cubeObjects)
+        {
+            var cubeMovement = cube.GetComponent<CubeMovement>();
+            if (cubeMovement != null)
+            {
+                cubeMovement.DisableDrag();
+            }
+            
+        }
+
+        if (userSwapped)
+        {
+            Debug.Log("User has completed the swap");
+        }
+        else
+        {
+            Debug.Log("User has not completed the swap");
+        }
     }
     private void MovePrismAboveHighlightedObject(GameObject highlightedObject)
     {
@@ -350,61 +433,22 @@ public class InputHandler : MonoBehaviour
         
         intList = cubeGenerator.grabCubeText();
 
-        TeachSteppedBubbleSort(intList);
-        // Handle the sorted list here
-        output.text = inputString;
-        string sortedString = string.Join(",", sortedList);
-        sortedOutput.text = sortedString;
+        //TeachSteppedBubbleSort(intList);
+        //// Handle the sorted list here
+        //output.text = inputString;
+        //string sortedString = string.Join(",", sortedList);
+        //sortedOutput.text = sortedString;
         
-        sortedList.Clear();
-    }
-    
-    /* Old sort before coroutine 
-    public void SortButton()
-    {
-        intList = this.grabCubeText();
-        
-        G1 g1 = new G1();
+        //sortedList.Clear();
 
-        //cubeGenerator.InstantiateCubes(intList);
-        float delay = 1;
-        sortedList = this.SteppedBubbleSort(intList);
-        
+        List<int> cubeNames = cubeGenerator.grabCubeNames();
 
-        output.text = inputString;
-
-        string sortedString = string.Join(",", sortedList);
-        sortedOutput.text = sortedString;
-
-        
-        //StartCoroutine(SortedCoroutine(intList));
-
-    }*/
-    /*
-    IEnumerator SortedCoroutine(List<int> inputList)
-    {
-        G1 g1 = new G1();
-        List<int> sortedList = new List<int>(inputList);
-
-        foreach (int value in this.SteppedBubbleSort(inputList))
+        StartCoroutine(TeachSteppedBubbleSortCoroutine(cubeNames, (sortedCubeNames) =>
         {
-            Debug.Log("the value in the stepped bubble sort is: " + value);
-
-            // Update UI or perform other operations as needed
-            string sortString = string.Join(",", sortedList);
-            sortedOutput.text = sortString;
-            cubeGenerator.InstantiateCubes(inputList);
-
-            // Introduce a delay of 1 second
-            yield return new WaitForSeconds(2f);
-        }
-
-        // Sorting is complete, handle the final results
-        output.text = string.Join(",", inputList);
-        string sortedString = string.Join(",", sortedList);
-        sortedOutput.text = sortedString;
-
-        cubeGenerator.InstantiateCubes(inputList);
+            // Handle the sorted list here
+            output.text = "Teaching? complete";
+            string sortedString = string.Join(",", sortedCubeNames);
+            sortedOutput.text = sortedString;
+        }));
     }
-    */
 }
