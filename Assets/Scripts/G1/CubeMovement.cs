@@ -8,6 +8,7 @@ public class CubeMovement : MonoBehaviour
     private Vector3 initialPosition;
     private Vector3 offset;
 
+    //need these two otherwise dragging no work
     public void EnableDrag()
     {
         canDrag = true;

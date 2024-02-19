@@ -42,7 +42,7 @@ public class CubeGenerator : MonoBehaviour
             // Check if a collider is present
             if (collider != null)
             {
-                // Set the collider as a trigger
+                
                 collider.isTrigger = true;
             }
             else

@@ -9,10 +9,24 @@ using System;
 public class G1 : MonoBehaviour
 {
     public CubeGenerator cubeGenerator;
+    public TextMeshProUGUI scoreDisplay;
+    public int tempScore = 0;
+    public int highestScore;
+    public int initialScore;
+    public int sessionQsAnswered;
+    public int attempts;
+    public string timestamp;
+    List<int> scoreArray = new List<int>();
     //public G1 g1
 
     private void Awake()
     {
+        if (DBManager.username == null)
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        }
+        
+        scoreDisplay.text = "Points: " + DBManager.initialScore;
         cubeGenerator = GameObject.FindObjectOfType<CubeGenerator>();
         if (cubeGenerator == null)
         {
@@ -35,7 +49,67 @@ public class G1 : MonoBehaviour
     {
 
     }
+    public void CallSaveDataAndReturnToMenu()
+    {
+        StartCoroutine(CallSaveData());
+    }
+    public IEnumerator CallSaveData()
+    {
+        yield return StartCoroutine(SaveUserData());
 
+        InputHandler ihandler = new InputHandler();
+        ihandler.ReturnToPlayMenu();
+
+
+    }
+    IEnumerator SaveUserData()
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("username", DBManager.username); //potentially a problem
+        //form.AddField("userid", DBManager.userid);
+        form.AddField("highScore", DBManager.highScore);
+        form.AddField("initialScore", DBManager.initialScore);
+        form.AddField("sessionQsAnswered", DBManager.sessionQsAnswered);
+        form.AddField("attempts", DBManager.attempts);
+        form.AddField("timestamp", DBManager.timestamp);
+
+        WWW www = new WWW("http://localhost/unityprojdb/savedata.php", form);
+        yield return www;
+
+        if(www.text[0] == '0')
+        {
+            Debug.Log("Data Saved.");
+
+        }
+        else
+        {
+            Debug.Log("Save failed. Error #" + www.text);
+        }
+
+        //DBManager.LogOut(); - Call this on the play menu
+    }
+    public void increaseBubbleScore()
+    {
+        tempScore += 1;
+        scoreDisplay.text = "Points: " + tempScore;
+        DBManager.initialScore = tempScore;
+
+        
+
+
+        // Maybe: have to have a total score variable - This will just be for the user? 
+        //have to have a per-game score variable that gets reset on teach completion
+        //per-game score variable needs to be added to the array
+        //have to first set an initialScore on the first time the "teach button" completes
+        //then store all the following scores in that same session in an array
+        //highScore is max in array
+        //attempts is array count
+        //timestamp is time when clicking the back button
+    }
+    public void calculateEndScores()
+    {
+        
+    }
 
     public List<int> BubbleSort(List<int> list)
     {

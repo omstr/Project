@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -133,32 +134,55 @@ public class InputHandler : MonoBehaviour
         bool swapped;
         prismObject = GameObject.Find("Prism");
         List<GameObject> cubeObjects = new List<GameObject>();
+        cubeObjects = cubeGenerator.grabCubes();
+        MovePrismAboveHighlightedObject(cubeObjects[0]);
+        float adjustedDelay = delayInSeconds * delaySlider.value;
         do
         {
+
             swapped = false;
+            cubeObjects = cubeGenerator.grabCubes();
 
             for (int i = 1; i < size; i++)
             {
+
+                cubeObjects = cubeGenerator.grabCubes();
+                MovePrismAboveHighlightedObject(cubeObjects[i]);
+                yield return new WaitForSeconds(adjustedDelay);
+
                 if (sortedList[i - 1] > sortedList[i])
                 {
+                    MovePrismAboveHighlightedObject(cubeObjects[i]);
+
                     prevPassList = sortedList;
                     int temp = sortedList[i - 1];
                     sortedList[i - 1] = sortedList[i];
                     sortedList[i] = temp;
-
+                    //MovePrismAboveHighlightedObject(cubeObjects[i]);
+                    //yield return new WaitForSeconds(0.5f);
                     // After each pass, destroy the previously instantiated cubes from the enter button and instantiate new ones
                     cubeGenerator.grabandDestroyCubes();
                     cubeGenerator.InstantiateCubes(sortedList);
-
+                    
                     cubeObjects = cubeGenerator.grabCubes();
 
                     
                     string sortedString = string.Join(",", sortedList);
                     sortedOutput.text = sortedString;
+                    
                     // Introduce a delay
-                    yield return new WaitForSeconds(1f);
+                    yield return new WaitForSeconds(adjustedDelay);
                     swapped = true;
+                    MovePrismAboveHighlightedObject(cubeObjects[i]);
                 }
+                else
+                {
+                    cubeObjects = cubeGenerator.grabCubes();
+                    yield return new WaitForSeconds(1f);
+                    MovePrismAboveHighlightedObject(cubeObjects[i]);
+
+                }
+                cubeObjects = cubeGenerator.grabCubes();
             }
 
             
@@ -285,7 +309,7 @@ public class InputHandler : MonoBehaviour
 
                     string sortedString = string.Join(",", sortedList);
                     sortedOutput.text = sortedString;
-                    // Introduce a delay
+                    // Introduce a delay & wait for the drag & dropping
                     yield return StartCoroutine(WaitForUserSwap(cubeObjects));
                     cubeNames = cubeGenerator.grabCubeNames();
                     // Compare cubeNames to sortedList after each pass
@@ -361,10 +385,10 @@ public class InputHandler : MonoBehaviour
             }
         }
 
-        // Wait for a brief moment before starting to check for changes
+        // Wait before checking changes
         yield return new WaitForSeconds(0.1f);
 
-        // Continue checking for changes until at least two cubes have been dragged
+        // Continue checking for changes until two cubes have been dragged
         while (!userSwapped)
         {
             // Wait for the next frame to avoid performance issues
@@ -450,5 +474,10 @@ public class InputHandler : MonoBehaviour
             string sortedString = string.Join(",", sortedCubeNames);
             sortedOutput.text = sortedString;
         }));
+    }
+    public void ReturnToPlayMenu()
+    {
+        SceneManager.LoadScene("PlayMenu");
+
     }
 }
