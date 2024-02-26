@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
+using System.Linq;
 
 public class CodeDisplay : MonoBehaviour
 {
@@ -28,7 +30,7 @@ public class CodeDisplay : MonoBehaviour
 
     public int result; // for int comparisons
 
-    public int strResult; // for string comparisons
+    public string strResult; // for string comparisons
     
     private string q1ScriptPath = "Assets/Scripts/G2/Q1Fib.cs"; 
     private string q2ScriptPath = "Assets/Scripts/G2/Q2.cs";
@@ -72,12 +74,13 @@ public class CodeDisplay : MonoBehaviour
     {
         // Get the reference to the button that was clicked from other class.
         Button selectedButton = ButtonSelector.selectedButton;
-        
+
 
         // TODO: ONLY ACCEPTS NUMBERS RIGHT NOW
         // SHOULD PROBABLY START A SWITCH CASE IN A METHOD FOR DIFF TYPES OF Qs
-        int userAnswerInt = int.Parse(userInputField.text);
-        string userAnswerStr = userInputField.text;
+
+        //int userAnswerInt = int.Parse(userInputField.text);
+        //string userAnswerStr = userInputField.text;
 
 
         //string result = GetCorrectAnswerForButton(selectedButton);
@@ -116,23 +119,23 @@ public class CodeDisplay : MonoBehaviour
                 {
                     case "Q1Button":
                         // Handle checking answer for Question 1
-                        checkAnswerForQuestion1(userAnswerInt, storedImage);
+                        checkAnswerForQuestion1( storedImage);
                         break;
                     case "Q2Button":
                         // Handle checking answer for Question 2
-                        checkAnswerForQuestion1(userAnswerInt, storedImage);
+                        checkAnswerForQuestion1( storedImage);
                         break;
                     case "Q3Button":
                         // Handle checking answer for Question 2
-                        checkAnswerForQuestion1(userAnswerInt, storedImage);
+                        checkAnswerForQuestion1(storedImage);
                         break;
                     case "Q4Button":
                         // Handle checking answer for Question 2
-                        checkAnswerForQuestion1(userAnswerInt, storedImage);
+                        checkAnswerForQuestion1( storedImage);
                         break;
                     case "Q5Button":
                         // Handle checking answer for Question 2
-                        checkAnswerForQuestion5(userAnswerStr, storedImage);
+                        checkAnswerForQuestion5(storedImage);
                         break;
                     // Add cases for other buttons as needed
                     default:
@@ -173,9 +176,10 @@ public class CodeDisplay : MonoBehaviour
 
         return filteredCode;
     }
-    private void checkAnswerForQuestion1(int userAnswer, Image storedImage)
+    private void checkAnswerForQuestion1(Image storedImage)
     {
-        if (userAnswer == result)
+        int userAnswerInt = int.Parse(userInputField.text);
+        if (userAnswerInt == result)
         {
             Debug.Log("Correct answer!");
 
@@ -197,9 +201,16 @@ public class CodeDisplay : MonoBehaviour
 
         }
     }
-    private void checkAnswerForQuestion5(string userAnswerStr, Image storedImage)
+    private void checkAnswerForQuestion5(Image storedImage)
     {
-        if (userAnswerStr == result)
+        // convert the list to a single string separated by commas and trim spaces
+
+        string userAnswerStr = userInputField.text;
+
+        string newUserAnswerStr = userAnswerStr.Replace(" ", "");
+
+
+        if (newUserAnswerStr.Equals(strResult))
         {
             Debug.Log("Correct answer!");
 
@@ -208,7 +219,7 @@ public class CodeDisplay : MonoBehaviour
 
             G2Script.totalScore += 1;
             G2Script.questionsAnsweredCorrectly += 1;
-
+            //Debug.Log(strResult);
 
         }
         else
@@ -218,7 +229,7 @@ public class CodeDisplay : MonoBehaviour
 
             storedImage.gameObject.SetActive(true);
             G2Script.attempts += 1;
-
+            //Debug.Log(strResult);
         }
     }
 
@@ -340,7 +351,7 @@ public class CodeDisplay : MonoBehaviour
         if (File.Exists(q5ScriptPath))
         {
             //CHANGE PER QUESTION
-            //result = Q5.Algorithm(n);
+            strResult = Q5.Algorithm(n);
 
             //CHANGE PER QUESTION
             string[] lines = File.ReadAllLines(q5ScriptPath);
@@ -349,7 +360,7 @@ public class CodeDisplay : MonoBehaviour
             codeText.text = filteredCode;
 
             //TODO: CHANGE PER QUESTION
-            questionLabel.text = "";
+            questionLabel.text = "Enter your answer for the result, seperated by commas. n = " + n;
 
 
             codePanel.SetActive(true);

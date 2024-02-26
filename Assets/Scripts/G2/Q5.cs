@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Random = UnityEngine.Random;
-
-
 public class Q5 : MonoBehaviour
 {
-    
-    public static List<string> Algorithm(int n) 
+    public static string Algorithm(int n) 
     {
         List<string> stringArr = new List<string>(); // HIDE
         Console.WriteLine();
@@ -26,12 +23,9 @@ public class Q5 : MonoBehaviour
             }
             n = n / 2;
         }
-        
         Console.WriteLine("Read upwards");
         Console.ReadLine();
-
-        return stringArr; // HIDE
-         
-
+        string numberString = string.Join(",", stringArr); // HIDE
+        return numberString; // HIDE
     }
 }
