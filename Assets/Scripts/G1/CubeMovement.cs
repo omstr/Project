@@ -5,6 +5,7 @@ public class CubeMovement : MonoBehaviour
 {
     private bool canDrag = false;
     private bool isDragging = false;
+    private GameObject draggedCube;
     private Vector3 initialPosition;
     private Vector3 offset;
 
@@ -21,22 +22,30 @@ public class CubeMovement : MonoBehaviour
     {
         if (canDrag)
         {
-            // Store the initial position when the cube is clicked
+            // store the initial position when the cube is clicked
             initialPosition = transform.position;
 
-            // Calculate the offset between the clicked point on the cube and the mouse position
+            // calculate the offset between the clicked point on the cube and the mouse position
             offset = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-            
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            //TODO: Incorrect Image: check if this works and check if i can return the dragged cube
+            if (Physics.Raycast(ray, out hit))
+            {
+                GameObject draggedCube = hit.collider.gameObject; // store the reference to the clicked cube
+            } 
+
             isDragging = true;
         }
     }
-
+    
     private void OnMouseUp()
     {
         if (isDragging)
         {
-            // Check if the cube is over another cube
+            // check if the cube is over another cube
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -51,19 +60,20 @@ public class CubeMovement : MonoBehaviour
                 }
             }
 
-            // Reset isDragging to false
+            
             isDragging = false;
 
-            // Reset the position only if dragging was enabled
+            // reset the position only if dragging was enabled
             transform.position = initialPosition;
         }
     }
+   
 
     private void Update()
     {
         if (isDragging)
         {
-            // Update the position of the cube while dragging
+            // update the position of the cube while dragging
             Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f);
             Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
             transform.position = curPosition;
@@ -72,7 +82,7 @@ public class CubeMovement : MonoBehaviour
 
     private void SwapNamesAndLabels(GameObject cube1, GameObject cube2)
     {
-        // Swap names
+        // swap names
         string tempName = cube1.name;
         cube1.name = cube2.name;
         cube2.name = tempName;

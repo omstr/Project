@@ -57,9 +57,12 @@ public class CubeGenerator : MonoBehaviour
 
             //doesnt work
             //GameObject newCube = Instantiate(cube, new Vector3(i * 2, 0f, 0f), Quaternion.identity);
-            
-            newCube.transform.position = new Vector3(-7 + (i*2), -1.7f, -0.7f);
-            newCube.transform.localScale = new Vector3(100, 400, 100);
+
+            float cubeXPosition = (cubeGenTransform.position.x - 3) + i * 2f;
+            float cubeYPosition = cubeGenTransform.position.y + 2; //
+            float cubeZPosition = cubeGenTransform.position.z; //
+            newCube.transform.position = new Vector3(cubeXPosition, cubeYPosition, cubeZPosition);
+            newCube.transform.localScale = new Vector3(100, 300, 100);
 
             //Label assignment
             GameObject label = Instantiate(labelPrefab, new Vector3(0, 0, -0.8f), Quaternion.identity);
@@ -82,6 +85,78 @@ public class CubeGenerator : MonoBehaviour
             }
         }
     }
+    public void InstantiateRandomCubes(int minSize, int maxSize)
+    {
+        Game1 g1 = new Game1();
+        // random list of numbers within the specified size range
+        List<int> randomNumbers = g1.GenerateRandomNumberList(minSize, maxSize);
+        int size = randomNumbers.Count;
+        
+        
+
+        
+        float startingPosX = -7f;
+        float startingPosY = -1.7f;
+        float startingPosZ = -0.7f;
+
+        // instantiate cubes with random numbers under the "CubeGen" object
+        for (int i = 0; i < size; i++)
+        {
+            GameObject newCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            newCube.AddComponent<CubeMovement>();
+            Collider collider = newCube.GetComponent<Collider>();
+
+            // Check if a collider is present
+            if (collider != null)
+            {
+
+                collider.isTrigger = true;
+            }
+            else
+            {
+                // Add a collider component to the cube and set it as a trigger
+                collider = newCube.AddComponent<BoxCollider>();
+                collider.isTrigger = true;
+            }
+
+            newCube.transform.parent = cubeGenTransform;
+
+            //newCube.transform.SetParent(cubeGenTransform);
+            //newCube.transform.parent = cubeGenTransform;
+            newCube.tag = "CubeTag";
+            float cubeXPosition = (cubeGenTransform.position.x - 3) + i * 2f;
+            float cubeYPosition = cubeGenTransform.position.y + 2; //
+            float cubeZPosition = cubeGenTransform.position.z; //
+            newCube.transform.position = new Vector3(cubeXPosition, cubeYPosition, cubeZPosition);
+
+
+            //newCube.transform.position = new Vector3(-7 + (i * 2), -1.7f, -0.7f);
+            newCube.transform.localScale = new Vector3(100, 300, 100);
+
+            // Set the cube's name to the corresponding random number
+
+
+
+            GameObject label = Instantiate(labelPrefab, new Vector3(0f, 0f, -0.8f), Quaternion.identity);
+            label.transform.SetParent(newCube.transform, false);
+
+            TextMeshProUGUI textMeshPro = label.GetComponent<TextMeshProUGUI>();
+            if (textMeshPro != null)
+            {
+                textMeshPro.enabled = true;
+                textMeshPro.text = randomNumbers[i].ToString();
+                textMeshPro.fontSize = 1;
+                textMeshPro.alignment = TextAlignmentOptions.Center;
+
+                newCube.name = randomNumbers[i].ToString();
+            }
+            else
+            {
+                Debug.LogError("TextMeshProUGUI component not found on the label prefab!");
+            }
+        }
+    }
+
     public void moveCubes(GameObject cube1, GameObject cube2)
     {
         // Swap the names of cube1 and cube2

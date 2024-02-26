@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -41,6 +42,8 @@ public class Registration : MonoBehaviour
         }
         else
         {
+            EditorUtility.DisplayDialog("Error Occurred", "Registration failed. Error #" + www.text, "OK");
+
             Debug.Log("Reg failed. Error code #" + www.text);
         }
     }

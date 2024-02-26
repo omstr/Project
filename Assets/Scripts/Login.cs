@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,27 +30,39 @@ public class Login : MonoBehaviour
         WWW www = new WWW("http://localhost/unityprojdb/login.php", form);
         //UnityWebRequest www = UnityWebRequest.Post("http://localhost/unityprojdb/login.php", form);
         yield return www;
-        
-        //very ugly solution. When a user doesn't have any scores, the 0 pass code is expected 31 characters into www.text
-        if (www.text[31] == '0')
+        if (!string.IsNullOrEmpty(www.text))
         {
-            Debug.Log("Scores found\n");
-            DBManager.username = usernameInput.text;
-            //Need to store scores in DBManager
-            //DBManager.G1Scores = int.Parse(www.text.Split(',')[1]);
-            loginMenu.SetActive(false);
-            mainMenu.SetActive(true);
-        }else if(www.text[0] == '6'){
-            Debug.Log(www.text);
-            DBManager.username = usernameInput.text;
-            //Need to store scores in DBManager
-            //DBManager.G1Scores = int.Parse(www.text.Split(',')[1]);
-            loginMenu.SetActive(false);
-            mainMenu.SetActive(true);
+            //very ugly solution. When a user doesn't have any scores, the 0 pass code is expected 31 characters into www.text
+            // changed from 31 to 32 because expecting a single digit userid field
+            if (www.text[0] == '6')
+            {
+                Debug.Log(www.text);
+                DBManager.username = usernameInput.text;
+                //Need to store scores in DBManager
+                //DBManager.G1Scores = int.Parse(www.text.Split(',')[1]);
+                loginMenu.SetActive(false);
+                mainMenu.SetActive(true);
+            }
+            else if (www.text[31] == '0')
+            {
+                
+                Debug.Log("Scores found\n");
+                DBManager.username = usernameInput.text;
+                //Need to store scores in DBManager
+                //DBManager.G1Scores = int.Parse(www.text.Split(',')[1]);
+                loginMenu.SetActive(false);
+                mainMenu.SetActive(true);
+            }
+            else
+            {
+                EditorUtility.DisplayDialog("Error Occurred", "User Login failed. Error #" + www.text, "OK");
+                Debug.Log("User Login failed. Error #" + www.text);
+            }
+
         }
         else
         {
-            Debug.Log("User Login failed. Error #" + www.text);
+            EditorUtility.DisplayDialog("Error connecting to server","SQL Server not found", "OK");
         }
     }
 

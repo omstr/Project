@@ -10,11 +10,13 @@ using Random = UnityEngine.Random;
 
 public class InputHandler : MonoBehaviour
 {
+    public Canvas canvas;
     public TextMeshProUGUI output;
     public InputField textInputField;
     public TMP_InputField numberTMPInput;
     public TextMeshProUGUI sortedOutput;
     public TextMeshProUGUI questionBox;
+    public Button enterButton;
     public InputField answerBox;
     public GameObject questionObject;
     public GameObject answerObject;
@@ -27,9 +29,24 @@ public class InputHandler : MonoBehaviour
     public List<int> sortedList = new List<int>();
     public Image tickImage;
     public Image crossImage;
+    public int maxNumbers = 9;
+
+
+    private Coroutine bubbleSortCoroutine;
+    private Coroutine teachBubbleSortCoroutine;
+    private Coroutine clearCoroutine;
+
     private void Start()
     {
         cubeGenerator = GameObject.FindObjectOfType<CubeGenerator>();
+
+        textInputField.onEndEdit.AddListener(ValidateInput);
+
+        delaySlider.minValue = 0.1f;
+        delaySlider.value = 1;
+        
+
+
     }
     public void Trigger(GameObject gameObject)
     {
@@ -72,26 +89,87 @@ public class InputHandler : MonoBehaviour
         //}
         return intList;
     }
-    public void enterButton()
+    private void ValidateInput(string text)
+    {
+        // Validate the input text
+        // Allow digits (0-9) and comma (,) characters only
+        string validText = "";
+        int commaCount = 0;
+
+        foreach (char c in text)
+        {
+            if (char.IsDigit(c) || c == ',')
+            {
+                if (c == ',')
+                {
+                    commaCount++;
+                }
+
+                if (commaCount <= maxNumbers - 1 || (commaCount == maxNumbers && c == ','))
+                {
+                    validText += c;
+                }
+            }
+        }
+
+        // Update the input field text with the valid text
+        textInputField.text = validText;
+    }
+    public void EnterButton()
     {
         
         //cubeGenerator.grabandDestroyCubes();
         intList = this.handleInput();
-        G1 g1 = new G1();
-        sortedList = g1.BubbleSort(intList);
 
+        Game1 game1 = new Game1();
+
+        sortedList = game1.BubbleSort(intList);
         output.text = inputString;
         
         string sortedString = string.Join(",", sortedList);
         sortedOutput.text = sortedString;
-        cubeGenerator.InstantiateCubes(intList);
+        ClearButton(() =>
+        {
+            // this code will be executed after the clear coroutine finishes
+            cubeGenerator.InstantiateCubes(intList);
+        });
+
+        
         List<GameObject> cubeObjects = cubeGenerator.grabCubes();
+
         MovePrismAboveHighlightedObject(cubeObjects[0]);
         sortedList.Clear();
         intList.Clear();
     }
-    public void clearButton()
+
+    public void ClearButton(Action callback)
     {
+        // Stop the clear coroutine if it's running
+        if (clearCoroutine != null)
+        {
+            StopCoroutine(clearCoroutine);
+        }
+
+        // Start the clear coroutine
+        clearCoroutine = StartCoroutine(ClearButtonCoroutine(() =>
+        {
+            // After clearing is complete, invoke the callback to start cube instantiation
+            callback?.Invoke();
+        }));
+    }
+    private IEnumerator ClearButtonCoroutine(Action callback)
+    {
+        // Wait for one frame to ensure all objects are destroyed
+        yield return null;
+
+        if (bubbleSortCoroutine != null)
+        {
+            StopCoroutine(bubbleSortCoroutine);
+        }
+        if (teachBubbleSortCoroutine != null)
+        {
+            StopCoroutine(teachBubbleSortCoroutine);
+        }
         Transform game1Transform = transform.parent.Find("Game1");
 
         if (game1Transform != null)
@@ -121,10 +199,12 @@ public class InputHandler : MonoBehaviour
         {
             Debug.LogError("Could not find Game1 transform.");
         }
+        callback?.Invoke();
+
     }
     public void StartSteppedBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
-        StartCoroutine(SteppedBubbleSortCoroutine(list, onComplete));
+        bubbleSortCoroutine = StartCoroutine(SteppedBubbleSortCoroutine(list, onComplete));
     }
     IEnumerator SteppedBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
@@ -249,42 +329,18 @@ public class InputHandler : MonoBehaviour
         // Invoke the callback with the sorted list
         onComplete?.Invoke(cubeObjects.Select(cube => int.Parse(cube.name)).ToList());
     }
-
-
-    public void SortButton()
-    {
-        intList = cubeGenerator.grabCubeNames();
-
-        StartCoroutine(SteppedBubbleSortCoroutine(intList, (sortedList) =>
-        {
-            // Handle the sorted list here
-            output.text = inputString;
-            string sortedString = string.Join(",", sortedList);
-            sortedOutput.text = sortedString;
-        }));
-        sortedList.Clear();
-    }
-    public void SortObjectsButton()
-    {
-        List<int> cubeNames = cubeGenerator.grabCubeNames();
-
-        StartCoroutine(SteppedObjectBubbleSortCoroutine(cubeNames, (sortedCubeNames) =>
-        {
-            // Handle the sorted list here
-            output.text = "Sorting complete";
-            string sortedString = string.Join(",", sortedCubeNames);
-            sortedOutput.text = sortedString;
-        }));
-    }
     public IEnumerator TeachSteppedBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
+        Game1 game1 = new Game1();
         List<int> sortedList = new List<int>(list);
         List<int> prevPassList = new List<int>();
+        List<GameObject> cubeObjects = new List<GameObject>();
         int size = sortedList.Count;
         bool swapped;
         prismObject = GameObject.Find("Prism");
-        List<GameObject> cubeObjects = new List<GameObject>();
-        cubeObjects = cubeGenerator.grabCubes();
+        
+        Game1.attempts = 0;
+        cubeObjects = cubeGenerator.grabCubes(); // NullReferenceException
 
         List<int> cubeNames = new List<int>();
         MovePrismAboveHighlightedObject(cubeObjects[0]);
@@ -301,9 +357,9 @@ public class InputHandler : MonoBehaviour
                     int temp = sortedList[i - 1];
                     sortedList[i - 1] = sortedList[i];
                     sortedList[i] = temp;
-                    MovePrismAboveHighlightedObject(cubeObjects[i]);
+                    MovePrismAboveHighlightedObject(cubeObjects[i-1]);
 
-                    
+
                     cubeObjects = cubeGenerator.grabCubes();
 
 
@@ -318,18 +374,37 @@ public class InputHandler : MonoBehaviour
                         Debug.Log("The list of the cube names" + cubeNames.ToString());
                         Debug.Log("The sorted list from the bubble sort" + sortedList.ToString());
                         tickImage.enabled = true;
-                        SpawnImageOverCube(cubeObjects[i]);
+                        SpawnImageOverCube(cubeObjects[i], tickImage);
                         output.text = "Correct";
+
+                        //SQL handling
+                        game1.increaseBubbleScore();
+                        
+                        Game1.questionsAnsweredCorrectly += 1;
+                        swapped = true;
                     }
                     else
                     {
+                        SpawnImageOverCube(cubeObjects[i], crossImage);
                         Debug.Log("The list of the cube names" + cubeNames);
                         Debug.Log("The sorted list from the bubble sort" + sortedList);
-                        SpawnImageOverCube(cubeObjects[i]);
+                        //TODO: Incorrect Image:  fix incorrect image
+                        //SpawnImageOverCube(, crossImage);
                         crossImage.enabled = true;
                         output.text = "Incorrect";
+
+                        sortedList = prevPassList;
+                        //TODO: if incorrect, don't actually swap the cubes, just place the incorrect image and keep the list the same
+                        
+
+                        //SQL handling
+                        game1.increaseAttempts();
+                        swapped = false;
+                        yield return null; // will restart the loop but havent tested to what extent, check chat for other implementation
                     }
-                    swapped = true;
+                    game1.increaseSessionQsAnswered();
+                    //swapped = true;
+
                 }
             }
 
@@ -340,21 +415,53 @@ public class InputHandler : MonoBehaviour
 
         } while (swapped && size > 1);
 
+        //SQL Handling 
+        //Game1.attempts += 1;
+        game1.increaseAttempts();
+        
+        //game1.scoreArray.Add(game1.tempScore);
+        //Debug.Log("Score Array size: " + game1.scoreArray.Count);
+        //foreach (int num in game1.scoreArray)
+        //{
+        //    Debug.Log("Score array " + num);
+        //}
+
+
+
         Debug.Log("Sorting Complete");
 
         // Invoke the callback with the sorted list
         onComplete?.Invoke(sortedList);
 
     }
-    private void SpawnImageOverCube(GameObject cube)
+
+    private void SpawnImageOverCube(GameObject cube, Image chosenImage)
     {
-        // Spawn the tickImage over the cube's position
-        Transform game1Transform = transform.parent.Find("Game1");
 
-        Instantiate(tickImage, cube.transform.position, Quaternion.identity);
+        // Get the main camera
+        Camera mainCamera = Camera.main;
 
-        Debug.Log("Spawned tick image at: " + tickImage.transform.position);
-        Debug.Log("Cube position: " + cube.transform.position);
+        // Check if the main camera exists
+        if (mainCamera != null)
+        {
+            // Calculate the screen space position of the cube
+            Vector3 screenPosition = mainCamera.WorldToScreenPoint(cube.transform.position);
+
+            // Convert the screen space position to canvas space
+            RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+            Vector2 canvasPosition;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPosition, mainCamera, out canvasPosition);
+
+            canvasPosition.y += 200f;
+
+
+            // Set the tick image's anchored position on the canvas
+            chosenImage.rectTransform.anchoredPosition = canvasPosition;
+        }
+        else
+        {
+            Debug.LogError("Main camera not found.");
+        }
     }
     private bool ListsAreEqual(List<int> list1, List<int> list2)
     {
@@ -422,7 +529,7 @@ public class InputHandler : MonoBehaviour
             {
                 cubeMovement.DisableDrag();
             }
-            
+
         }
 
         if (userSwapped)
@@ -434,7 +541,34 @@ public class InputHandler : MonoBehaviour
             Debug.Log("User has not completed the swap");
         }
     }
-    private void MovePrismAboveHighlightedObject(GameObject highlightedObject)
+
+    public void SortButton()
+    {
+        intList = cubeGenerator.grabCubeNames();
+
+        StartCoroutine(SteppedBubbleSortCoroutine(intList, (sortedList) =>
+        {
+            // Handle the sorted list here
+            output.text = inputString;
+            string sortedString = string.Join(",", sortedList);
+            sortedOutput.text = sortedString;
+        }));
+        sortedList.Clear();
+    }
+    public void SortObjectsButton()
+    {
+        List<int> cubeNames = cubeGenerator.grabCubeNames();
+
+        StartCoroutine(SteppedObjectBubbleSortCoroutine(cubeNames, (sortedCubeNames) =>
+        {
+            // Handle the sorted list here
+            output.text = "Sorting complete";
+            string sortedString = string.Join(",", sortedCubeNames);
+            sortedOutput.text = sortedString;
+        }));
+    }
+    
+    public void MovePrismAboveHighlightedObject(GameObject highlightedObject)
     {
 
         // Check if the highlightedObject is not null and the prismObject is assigned
@@ -454,26 +588,49 @@ public class InputHandler : MonoBehaviour
     }
     public void teachSortButton()
     {
-        
+        //Game1 game1 = new Game1();
+        enterButton.interactable = false;
+
         intList = cubeGenerator.grabCubeText();
 
-        //TeachSteppedBubbleSort(intList);
-        //// Handle the sorted list here
-        //output.text = inputString;
-        //string sortedString = string.Join(",", sortedList);
-        //sortedOutput.text = sortedString;
-        
-        //sortedList.Clear();
-
         List<int> cubeNames = cubeGenerator.grabCubeNames();
-
-        StartCoroutine(TeachSteppedBubbleSortCoroutine(cubeNames, (sortedCubeNames) =>
+        teachBubbleSortCoroutine = StartCoroutine(TeachSteppedBubbleSortCoroutine(cubeNames, (sortedCubeNames)  =>
         {
-            // Handle the sorted list here
+            
+            // Handle the sorted list 
             output.text = "Teaching? complete";
             string sortedString = string.Join(",", sortedCubeNames);
             sortedOutput.text = sortedString;
+
+            Debug.Log("Temp score when trying to save: " + Game1.tempScore);
+            Game1.scoreArray.Add(Game1.tempScore);
+            Debug.Log("Score Array size: " + Game1.scoreArray.Count);
+            foreach (int num in Game1.scoreArray)
+            {
+                Debug.Log("Score array " + num);
+            }
+
+            // reset temp score
+            Game1.tempScore = 0;
+
         }));
+
+        enterButton.interactable = true;
+    }
+    public void GenerateRandomButton()
+    {
+        ClearButton(() =>
+        {
+            // This code will be executed after the clear coroutine finishes
+            cubeGenerator.InstantiateRandomCubes(4, 9);
+
+        });
+        Game1 game1 = new Game1();
+
+        List<GameObject> cubeObjects = cubeGenerator.grabCubes();
+
+        MovePrismAboveHighlightedObject(cubeObjects[0]);
+        
     }
     public void ReturnToPlayMenu()
     {

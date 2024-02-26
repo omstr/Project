@@ -463,10 +463,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 198447940}
+    m_SelectOnDown: {fileID: 198447940}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -1113,6 +1113,7 @@ GameObject:
   m_Component:
   - component: {fileID: 466896508}
   - component: {fileID: 466896509}
+  - component: {fileID: 466896510}
   m_Layer: 5
   m_Name: MainMenu
   m_TagString: Untagged
@@ -1159,6 +1160,20 @@ MonoBehaviour:
   mainMenu: {fileID: 466896507}
   userMenu: {fileID: 580314495}
   userStatus: {fileID: 551543679}
+--- !u!114 &466896510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 466896507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d087f600d54c8984ca5d9468c0f23c3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myButton: {fileID: 891485982}
+  inputField: {fileID: 0}
 --- !u!1 &486500201
 GameObject:
   m_ObjectHideFlags: 0
@@ -1776,6 +1791,7 @@ GameObject:
   m_Component:
   - component: {fileID: 580314496}
   - component: {fileID: 580314497}
+  - component: {fileID: 580314498}
   m_Layer: 5
   m_Name: UserMenu
   m_TagString: Untagged
@@ -1822,6 +1838,20 @@ MonoBehaviour:
   playMenu: {fileID: 0}
   regMenu: {fileID: 1835446852}
   loginMenu: {fileID: 1619759426}
+--- !u!114 &580314498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580314495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d087f600d54c8984ca5d9468c0f23c3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myButton: {fileID: 198447940}
+  inputField: {fileID: 0}
 --- !u!1 &617588975
 GameObject:
   m_ObjectHideFlags: 0
@@ -2095,10 +2125,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 891485982}
+    m_SelectOnDown: {fileID: 891485982}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -3017,6 +3047,7 @@ GameObject:
   - component: {fileID: 1619759427}
   - component: {fileID: 1619759428}
   - component: {fileID: 1619759429}
+  - component: {fileID: 1619759430}
   m_Layer: 5
   m_Name: loginMenu
   m_TagString: Untagged
@@ -3080,6 +3111,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputField: {fileID: 1628590195}
   submitButton: {fileID: 2032050122}
+--- !u!114 &1619759430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619759426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d087f600d54c8984ca5d9468c0f23c3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myButton: {fileID: 2032050122}
+  inputField: {fileID: 1628590195}
 --- !u!1 &1628590193
 GameObject:
   m_ObjectHideFlags: 0
@@ -4444,10 +4489,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 2032050122}
+    m_SelectOnDown: {fileID: 2032050122}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
