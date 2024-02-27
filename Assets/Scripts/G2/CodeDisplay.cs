@@ -13,24 +13,33 @@ public class CodeDisplay : MonoBehaviour
     public Button q1Button; // change to button array 
     public Button q2Button; // change to button array 
     public Button q3Button; // change to button array 
-
     public Button q4Button; // change to button array 
     public Button q5Button; // change to button array 
+    public Button q6Button; // change to button array 
+    public Button q7Button; // change to button array 
+    public Button q8Button; // change to button array 
+    public Button q9Button; // change to button array 
+    public Button q10Button; // change to button array 
 
     public Button[] questionButtons;
 
     public GameObject codePanel; 
     public TextMeshProUGUI questionLabel;
+    public TextMeshProUGUI scoreDisplay;
     public TMP_InputField userInputField;
     public Image buttonImage; 
     public Sprite correctSprite;
     public Sprite orangeSprite;
+    public Sprite redSprite;
+
 
     
 
     public int result; // for int comparisons
 
     public string strResult; // for string comparisons
+
+    public string[] expectedStrings;
     
     private string q1ScriptPath = "Assets/Scripts/G2/Q1Fib.cs"; 
     private string q2ScriptPath = "Assets/Scripts/G2/Q2.cs";
@@ -76,7 +85,7 @@ public class CodeDisplay : MonoBehaviour
         Button selectedButton = ButtonSelector.selectedButton;
 
 
-        // TODO: ONLY ACCEPTS NUMBERS RIGHT NOW
+        // DONE TODO: ONLY ACCEPTS NUMBERS RIGHT NOW
         // SHOULD PROBABLY START A SWITCH CASE IN A METHOD FOR DIFF TYPES OF Qs
 
         //int userAnswerInt = int.Parse(userInputField.text);
@@ -119,23 +128,35 @@ public class CodeDisplay : MonoBehaviour
                 {
                     case "Q1Button":
                         // Handle checking answer for Question 1
-                        checkAnswerForQuestion1( storedImage);
+                        checkAnswerForIntQuestion( storedImage);
                         break;
                     case "Q2Button":
                         // Handle checking answer for Question 2
-                        checkAnswerForQuestion1( storedImage);
+                        checkAnswerForIntQuestion( storedImage);
                         break;
                     case "Q3Button":
-                        // Handle checking answer for Question 2
-                        checkAnswerForQuestion1(storedImage);
+                        // Handle checking answer for Question 3
+                        checkAnswerForIntQuestion(storedImage);
                         break;
                     case "Q4Button":
-                        // Handle checking answer for Question 2
-                        checkAnswerForQuestion1( storedImage);
+                        // Handle checking answer for Question 4
+                        checkAnswerForIntQuestion( storedImage);
                         break;
                     case "Q5Button":
-                        // Handle checking answer for Question 2
+                        // Handle checking answer for Question 5
                         checkAnswerForQuestion5(storedImage);
+                        break;
+                    case "Q6Button":
+                        // Handle checking answer for Question 6
+                        checkAnswerForIntQuestion(storedImage);
+                        break;
+                    case "Q7Button":
+                        // Handle checking answer for Question 7
+                        CheckAnswerForStringAndIntQuestion(storedImage);
+                        break;
+                    case "Q8Button":
+                        // Handle checking answer for Question 8
+                        
                         break;
                     // Add cases for other buttons as needed
                     default:
@@ -176,7 +197,7 @@ public class CodeDisplay : MonoBehaviour
 
         return filteredCode;
     }
-    private void checkAnswerForQuestion1(Image storedImage)
+    private void checkAnswerForIntQuestion(Image storedImage)
     {
         int userAnswerInt = int.Parse(userInputField.text);
         if (userAnswerInt == result)
@@ -188,16 +209,18 @@ public class CodeDisplay : MonoBehaviour
 
             G2Script.totalScore += 1;
             G2Script.questionsAnsweredCorrectly += 1;
+            scoreDisplay.text = "Points: " + G2Script.totalScore;
 
 
         }
         else
         {
             Debug.Log("Incorrect answer!");
-            storedImage.sprite = orangeSprite;
+            storedImage.sprite = redSprite;
 
             storedImage.gameObject.SetActive(true);
             G2Script.attempts += 1;
+            Debug.Log(result);
 
         }
     }
@@ -219,20 +242,163 @@ public class CodeDisplay : MonoBehaviour
 
             G2Script.totalScore += 1;
             G2Script.questionsAnsweredCorrectly += 1;
+            scoreDisplay.text = "Points: " + G2Script.totalScore;
             //Debug.Log(strResult);
 
         }
         else
         {
             Debug.Log("Incorrect answer!");
-            storedImage.sprite = orangeSprite;
+            storedImage.sprite = redSprite;
 
             storedImage.gameObject.SetActive(true);
             G2Script.attempts += 1;
             //Debug.Log(strResult);
         }
     }
+    private void CheckAnswerForStringAndIntQuestion(Image storedImage)
+    {
+        string userInput = userInputField.text;
+        string[] parts = userInput.Split(',');
+        //string stringPart = parts[0].Trim();
+        //string intPart = parts[1].Trim();
 
+
+        bool hasAnsweredString = false;
+        bool hasAnsweredInt = false;
+        
+
+        // Check if the input has two parts
+        if (parts.Length == 2)
+        {
+            string userInputString = parts[0].Trim();
+            int userInputInt;
+            bool parsedSuccessfully = int.TryParse(parts[1].Trim(), out userInputInt);
+
+            if (parsedSuccessfully)
+            {
+                // Compare string and integer parts with expected values
+                bool intPartCorrect = userInputInt == result;
+                bool stringPartCorrect = false;
+                foreach (string expectedString in expectedStrings)
+                {
+                    if (parts[0].Equals(expectedString))
+                    {
+                        stringPartCorrect = true;
+                        break;
+                    }
+                }
+                
+
+                if (stringPartCorrect)
+                {
+                    Debug.Log("Correct string part!");
+                    G2Script.totalScore += 1; // Increase score for correct string part
+                    G2Script.questionsAnsweredCorrectly += 1;
+                    scoreDisplay.text = "Points: " + G2Script.totalScore;
+                    storedImage.sprite = orangeSprite;
+                }
+                if (intPartCorrect)
+                {
+                    Debug.Log("Correct integer part!");
+                    G2Script.totalScore += 1; // Increase score for correct integer part
+                    G2Script.questionsAnsweredCorrectly += 1;
+                    scoreDisplay.text = "Points: " + G2Script.totalScore;
+                    storedImage.sprite = orangeSprite;
+                }
+
+                // Update UI based on correctness of parts
+                if (stringPartCorrect && intPartCorrect)
+                {
+                    Debug.Log("Correct answer!");
+
+                    storedImage.sprite = correctSprite;
+                    storedImage.gameObject.SetActive(true);
+
+                    
+                }
+                else
+                {
+                    Debug.Log("Incorrect answer!");
+                    storedImage.sprite = redSprite;
+                    storedImage.gameObject.SetActive(true);
+                    G2Script.attempts += 1;
+                }
+            }
+            else
+            {
+                Debug.Log("Invalid input format. Please enter a string followed by a number separated by a comma.");
+            }
+        }
+        else if (parts.Length == 1)
+        {
+            string userInputString = parts[0].Trim();
+
+            // Check if the input is a valid integer
+            if (int.TryParse(userInputString, out int userInputInt))
+            {
+                bool intPartCorrect = userInputInt == result;
+                if (intPartCorrect)
+                {
+                    Debug.Log("Correct integer part!");
+                    G2Script.totalScore += 1; // Increase score for correct integer part
+
+                    Debug.Log("Correct answer!");
+                    storedImage.sprite = orangeSprite;
+                    storedImage.gameObject.SetActive(true);
+                    G2Script.questionsAnsweredCorrectly += 1;
+
+                    scoreDisplay.text = "Points: " + G2Script.totalScore;
+                }
+                else
+                {
+                    Debug.Log("Incorrect integer part!");
+                    storedImage.sprite = redSprite;
+                    storedImage.gameObject.SetActive(true);
+                    G2Script.attempts += 1;
+                    
+                }
+            }
+            else
+            {
+                bool stringPartCorrect = false;
+                foreach (string expectedString in expectedStrings)
+                {
+                    if (userInputString.Equals(expectedString))
+                    {
+                        stringPartCorrect = true;
+                        break;
+                    }
+                }
+                if (stringPartCorrect)
+                {
+                    Debug.Log("Correct string part!");
+                    G2Script.totalScore += 1; // Increase score for correct string part
+                    storedImage.sprite = orangeSprite;
+                    storedImage.gameObject.SetActive(true);
+                    G2Script.questionsAnsweredCorrectly += 1;
+
+                    scoreDisplay.text = "Points: " + G2Script.totalScore;
+                }
+                else
+                {
+                    Debug.Log("Incorrect string part!");
+                    storedImage.sprite = redSprite;
+                    storedImage.gameObject.SetActive(true);
+                    G2Script.attempts += 1;
+                    
+                    foreach (string expectedString in expectedStrings)
+                    {
+                        Debug.Log("string: "+ expectedString);
+                    }
+                }
+            }
+        }
+        else
+        {
+            Debug.Log("Invalid input format. Please enter either a string, or an int. Or both a string followed by a number separated by a comma.");
+        }
+    }
     public void ShowQ1Code()
     {
         int n = Random.Range(1, 20);
@@ -373,21 +539,26 @@ public class CodeDisplay : MonoBehaviour
     }
     public void ShowQ6Code()
     {
-        int n = Random.Range(1, 20);
+        int x = Random.Range(1, 5);
+        int y = Random.Range(1, 10);
+
+        string strX = x.ToString();
+        string strY = y.ToString();
 
         //CHANGE PER QUESTION
-        if (File.Exists(q5ScriptPath))
+        if (File.Exists(q6ScriptPath))
         {
             //CHANGE PER QUESTION
-            //result = Q2
+            result = Q6.Algorithm(strX, strY);
 
             //CHANGE PER QUESTION
-            string code = File.ReadAllText(q5ScriptPath);
+            string[] lines = File.ReadAllLines(q6ScriptPath);
+            string filteredCode = FilterCode(lines);
 
-            codeText.text = code;
+            codeText.text = filteredCode;
 
             //TODO: CHANGE PER QUESTION
-            questionLabel.text = "";
+            questionLabel.text = "What is total when input1 is " + x + " and input2 is " + y;
 
 
             codePanel.SetActive(true);
@@ -395,34 +566,67 @@ public class CodeDisplay : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Q5.cs script file not found!");
+            Debug.LogError("Q6.cs script file not found!");
         }
     }
     public void ShowQ7Code()
     {
-        int n = Random.Range(1, 20);
-
+        int randNum;
         //CHANGE PER QUESTION
-        if (File.Exists(q5ScriptPath))
+        if (File.Exists(q7ScriptPath))
         {
-            //CHANGE PER QUESTION
-            //result = Q2
 
             //CHANGE PER QUESTION
-            string code = File.ReadAllText(q5ScriptPath);
+            
+            randNum = Random.Range(3, 8);
+            randNum = 6; //TODO Remove
+            Q7.InitialiseCAndB(randNum);
+            //Debug.Log(Q7.A);
+            //Debug.Log(Q7.B);
+            //Debug.Log(Q7.C);
+            //Q7.Adjust();
+            //Debug.Log(Q7.A);
+            //Debug.Log(Q7.B);
+            //Debug.Log(Q7.C);
+            while (Q7.B < Q7.A)
+            {
+                
+                Q7.Output1();
+                Q7.Output2();
+                Q7.Adjust();
+                //Debug.Log("A: " + Q7.A);
+                //Debug.Log("B: " + Q7.B);
+                //Debug.Log("C: " + Q7.C);
+            }
 
-            codeText.text = code;
 
+            expectedStrings = new string[] { "triangle", "pyramid" };
+            result = Q7.listOfOs.Count; // The amount of O's in the list
+
+            //CHANGE PER QUESTION
+            string[] lines = File.ReadAllLines(q7ScriptPath);
+            string filteredCode = FilterCode(lines);
+
+            codeText.text = filteredCode;
+            Debug.Log("O count: " + result);
+            //foreach (string str in expectedStrings)
+            //{
+            //    Debug.Log(str);
+            //}
+            string convertedString = string.Join(",", Q7.listOfOs);
+            foreach (char ch in convertedString)
+            {
+                Debug.Log(ch + ", ");
+            }
             //TODO: CHANGE PER QUESTION
-            questionLabel.text = "";
-
+            questionLabel.text = "What will this output look like? What is the amount of O's printed? \n \n Hint: To answer both questions enter in string,int format.";
 
             codePanel.SetActive(true);
 
         }
         else
         {
-            Debug.LogError("Q5.cs script file not found!");
+            Debug.LogError("Q7.cs script file not found!");
         }
     }
     public void ShowQ8Code()
@@ -430,15 +634,16 @@ public class CodeDisplay : MonoBehaviour
         int n = Random.Range(1, 20);
 
         //CHANGE PER QUESTION
-        if (File.Exists(q5ScriptPath))
+        if (File.Exists(q8ScriptPath))
         {
             //CHANGE PER QUESTION
             //result = Q2
 
             //CHANGE PER QUESTION
-            string code = File.ReadAllText(q5ScriptPath);
+            string[] lines = File.ReadAllLines(q8ScriptPath);
+            string filteredCode = FilterCode(lines);
 
-            codeText.text = code;
+            codeText.text = filteredCode;
 
             //TODO: CHANGE PER QUESTION
             questionLabel.text = "";
@@ -457,15 +662,16 @@ public class CodeDisplay : MonoBehaviour
         int n = Random.Range(1, 20);
 
         //CHANGE PER QUESTION
-        if (File.Exists(q5ScriptPath))
+        if (File.Exists(q9ScriptPath))
         {
             //CHANGE PER QUESTION
             //result = Q2
 
             //CHANGE PER QUESTION
-            string code = File.ReadAllText(q5ScriptPath);
+            string[] lines = File.ReadAllLines(q9ScriptPath);
+            string filteredCode = FilterCode(lines);
 
-            codeText.text = code;
+            codeText.text = filteredCode;
 
             //TODO: CHANGE PER QUESTION
             questionLabel.text = "";
@@ -484,15 +690,16 @@ public class CodeDisplay : MonoBehaviour
         int n = Random.Range(1, 20);
 
         //CHANGE PER QUESTION
-        if (File.Exists(q5ScriptPath))
+        if (File.Exists(q10ScriptPath))
         {
             //CHANGE PER QUESTION
             //result = Q2
 
             //CHANGE PER QUESTION
-            string code = File.ReadAllText(q5ScriptPath);
+            string[] lines = File.ReadAllLines(q10ScriptPath);
+            string filteredCode = FilterCode(lines);
 
-            codeText.text = code;
+            codeText.text = filteredCode;
 
             //TODO: CHANGE PER QUESTION
             questionLabel.text = "";

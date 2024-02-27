@@ -25,6 +25,8 @@ public class Q5 : MonoBehaviour
         }
         Console.WriteLine("Read upwards");
         Console.ReadLine();
+        
+        //ignore return
         string numberString = string.Join(",", stringArr); // HIDE
         return numberString; // HIDE
     }
