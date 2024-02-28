@@ -19,7 +19,7 @@ public class Q7 : MonoBehaviour
     }
     public static void Output1()
     {
-        //int count;
+        //int count; // HIDE
         for(int count = 1; count <= C; count++)
         {
             Console.Write(" ");

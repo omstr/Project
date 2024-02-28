@@ -1359,7 +1359,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: Initial Array
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5445,7 +5445,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2002935847
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6049,12 +6049,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7399369996369766475, guid: f64c07a126dfb044182bbf81cc0093e1, type: 3}
+      propertyPath: m_fontSize
+      value: 28
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399369996369766475, guid: f64c07a126dfb044182bbf81cc0093e1, type: 3}
       propertyPath: m_fontStyle
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7399369996369766475, guid: f64c07a126dfb044182bbf81cc0093e1, type: 3}
       propertyPath: m_fontColor.b
-      value: 0.0817083
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7399369996369766475, guid: f64c07a126dfb044182bbf81cc0093e1, type: 3}
       propertyPath: m_fontColor.g
@@ -6062,7 +6066,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7399369996369766475, guid: f64c07a126dfb044182bbf81cc0093e1, type: 3}
       propertyPath: m_fontColor.r
-      value: 0.9811321
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399369996369766475, guid: f64c07a126dfb044182bbf81cc0093e1, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 28
       objectReference: {fileID: 0}
     - target: {fileID: 7399369996369766475, guid: f64c07a126dfb044182bbf81cc0093e1, type: 3}
       propertyPath: m_fontColor32.rgba

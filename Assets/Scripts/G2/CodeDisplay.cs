@@ -27,10 +27,14 @@ public class CodeDisplay : MonoBehaviour
     public TextMeshProUGUI questionLabel;
     public TextMeshProUGUI scoreDisplay;
     public TMP_InputField userInputField;
-    public Image buttonImage; 
+    public Image buttonImage;
+    public Image tickImage;
+    public Image tickImage2;
     public Sprite correctSprite;
     public Sprite orangeSprite;
     public Sprite redSprite;
+    public Sprite greyTickSprite;
+    public Sprite greenTickSprite;
 
 
     
@@ -64,6 +68,8 @@ public class CodeDisplay : MonoBehaviour
         q5Button.onClick.AddListener(ShowQ5Code);
 
         userInputField.onEndEdit.AddListener(OnEndEdit);
+        tickImage.gameObject.SetActive(true);
+        tickImage2.gameObject.SetActive(false);
     }
     void Update()
     {
@@ -202,6 +208,7 @@ public class CodeDisplay : MonoBehaviour
         int userAnswerInt = int.Parse(userInputField.text);
         if (userAnswerInt == result)
         {
+            tickImage.sprite = greenTickSprite;
             Debug.Log("Correct answer!");
 
             storedImage.sprite = correctSprite;
@@ -215,6 +222,7 @@ public class CodeDisplay : MonoBehaviour
         }
         else
         {
+            tickImage.sprite = greyTickSprite;
             Debug.Log("Incorrect answer!");
             storedImage.sprite = redSprite;
 
@@ -236,7 +244,7 @@ public class CodeDisplay : MonoBehaviour
         if (newUserAnswerStr.Equals(strResult))
         {
             Debug.Log("Correct answer!");
-
+            tickImage.sprite = greenTickSprite;
             storedImage.sprite = correctSprite;
             storedImage.gameObject.SetActive(true);
 
@@ -248,6 +256,7 @@ public class CodeDisplay : MonoBehaviour
         }
         else
         {
+            tickImage.sprite = greyTickSprite;
             Debug.Log("Incorrect answer!");
             storedImage.sprite = redSprite;
 
@@ -297,6 +306,7 @@ public class CodeDisplay : MonoBehaviour
                     G2Script.questionsAnsweredCorrectly += 1;
                     scoreDisplay.text = "Points: " + G2Script.totalScore;
                     storedImage.sprite = orangeSprite;
+                    tickImage.sprite = greenTickSprite;
                 }
                 if (intPartCorrect)
                 {
@@ -305,6 +315,7 @@ public class CodeDisplay : MonoBehaviour
                     G2Script.questionsAnsweredCorrectly += 1;
                     scoreDisplay.text = "Points: " + G2Script.totalScore;
                     storedImage.sprite = orangeSprite;
+                    tickImage2.sprite = greenTickSprite;
                 }
 
                 // Update UI based on correctness of parts
@@ -314,8 +325,10 @@ public class CodeDisplay : MonoBehaviour
 
                     storedImage.sprite = correctSprite;
                     storedImage.gameObject.SetActive(true);
+                    tickImage.sprite = greenTickSprite;
+                    tickImage2.sprite = greenTickSprite;
 
-                    
+
                 }
                 else
                 {
@@ -323,6 +336,8 @@ public class CodeDisplay : MonoBehaviour
                     storedImage.sprite = redSprite;
                     storedImage.gameObject.SetActive(true);
                     G2Script.attempts += 1;
+                    tickImage.sprite = greyTickSprite;
+                    tickImage2.sprite = greyTickSprite;
                 }
             }
             else
@@ -344,6 +359,7 @@ public class CodeDisplay : MonoBehaviour
                     G2Script.totalScore += 1; // Increase score for correct integer part
 
                     Debug.Log("Correct answer!");
+                    tickImage2.sprite = greenTickSprite;
                     storedImage.sprite = orangeSprite;
                     storedImage.gameObject.SetActive(true);
                     G2Script.questionsAnsweredCorrectly += 1;
@@ -352,6 +368,7 @@ public class CodeDisplay : MonoBehaviour
                 }
                 else
                 {
+                    tickImage2.sprite = greyTickSprite;
                     Debug.Log("Incorrect integer part!");
                     storedImage.sprite = redSprite;
                     storedImage.gameObject.SetActive(true);
@@ -373,6 +390,7 @@ public class CodeDisplay : MonoBehaviour
                 if (stringPartCorrect)
                 {
                     Debug.Log("Correct string part!");
+                    tickImage.sprite = greenTickSprite;
                     G2Script.totalScore += 1; // Increase score for correct string part
                     storedImage.sprite = orangeSprite;
                     storedImage.gameObject.SetActive(true);
@@ -383,6 +401,7 @@ public class CodeDisplay : MonoBehaviour
                 else
                 {
                     Debug.Log("Incorrect string part!");
+                    tickImage.sprite = greyTickSprite;
                     storedImage.sprite = redSprite;
                     storedImage.gameObject.SetActive(true);
                     G2Script.attempts += 1;
@@ -401,6 +420,7 @@ public class CodeDisplay : MonoBehaviour
     }
     public void ShowQ1Code()
     {
+        tickImage2.gameObject.SetActive(false);
         int n = Random.Range(1, 20);
         // Check if the Q1Fib.cs script file exists
         if (File.Exists(q1ScriptPath))
@@ -425,6 +445,7 @@ public class CodeDisplay : MonoBehaviour
     }
     public void ShowQ2Code()
     {
+        tickImage2.gameObject.SetActive(false);
         int rand1 = Random.Range(1, 20);
         int rand2 = Random.Range(1, 20);
 
@@ -454,6 +475,7 @@ public class CodeDisplay : MonoBehaviour
     }
     public void ShowQ3Code()
     {
+        tickImage2.gameObject.SetActive(false);
         int a = Random.Range(1, 20);
         int b = Random.Range(1, 20);
 
@@ -482,6 +504,7 @@ public class CodeDisplay : MonoBehaviour
     }
     public void ShowQ4Code()
     {
+        tickImage2.gameObject.SetActive(false);
         //int n = Random.Range(1, 20);
 
         //CHANGE PER QUESTION
@@ -510,6 +533,7 @@ public class CodeDisplay : MonoBehaviour
     }
     public void ShowQ5Code()
     {
+        tickImage2.gameObject.SetActive(false);
         int n = Random.Range(1, 20);
         
         
@@ -539,6 +563,7 @@ public class CodeDisplay : MonoBehaviour
     }
     public void ShowQ6Code()
     {
+        tickImage2.gameObject.SetActive(false);
         int x = Random.Range(1, 5);
         int y = Random.Range(1, 10);
 
@@ -571,6 +596,7 @@ public class CodeDisplay : MonoBehaviour
     }
     public void ShowQ7Code()
     {
+        tickImage2.gameObject.SetActive(true);
         int randNum;
         //CHANGE PER QUESTION
         if (File.Exists(q7ScriptPath))
@@ -579,7 +605,7 @@ public class CodeDisplay : MonoBehaviour
             //CHANGE PER QUESTION
             
             randNum = Random.Range(3, 8);
-            randNum = 6; //TODO Remove
+            //randNum = 6; //TODO Remove
             Q7.InitialiseCAndB(randNum);
             //Debug.Log(Q7.A);
             //Debug.Log(Q7.B);
@@ -619,7 +645,7 @@ public class CodeDisplay : MonoBehaviour
                 Debug.Log(ch + ", ");
             }
             //TODO: CHANGE PER QUESTION
-            questionLabel.text = "What will this output look like? What is the amount of O's printed? \n \n Hint: To answer both questions enter in string,int format.";
+            questionLabel.text = "What will this output look like? What is the amount of O's printed? randNum = " + randNum + "\n \n Hint: To answer both questions enter in string,int format.";
 
             codePanel.SetActive(true);
 
@@ -629,8 +655,13 @@ public class CodeDisplay : MonoBehaviour
             Debug.LogError("Q7.cs script file not found!");
         }
     }
+    public void ClearQ7List()
+    {
+        Q7.listOfOs.Clear();
+    }
     public void ShowQ8Code()
     {
+        tickImage2.gameObject.SetActive(false);
         int n = Random.Range(1, 20);
 
         //CHANGE PER QUESTION
@@ -659,6 +690,7 @@ public class CodeDisplay : MonoBehaviour
     }
     public void ShowQ9Code()
     {
+        tickImage2.gameObject.SetActive(false);
         int n = Random.Range(1, 20);
 
         //CHANGE PER QUESTION
@@ -687,6 +719,7 @@ public class CodeDisplay : MonoBehaviour
     }
     public void ShowQ10Code()
     {
+        tickImage2.gameObject.SetActive(false);
         int n = Random.Range(1, 20);
 
         //CHANGE PER QUESTION

@@ -14,6 +14,12 @@ public class CubeGenerator : MonoBehaviour
     private bool isDragging = false;
     private Vector3 offset;
 
+    private Dictionary<string, Color> cubeColors = new Dictionary<string, Color>();
+
+    private Color GetRandomColor()
+    {
+        return new Color(Random.value, Random.value, Random.value);
+    }
 
     public void InstantiateCubes(List<int> iList)
     {
@@ -34,6 +40,7 @@ public class CubeGenerator : MonoBehaviour
         float startingPosZ = -5;
         for (int i = 0; i < size; i++)
         {
+
             
             GameObject newCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             newCube.AddComponent<CubeMovement>();
@@ -53,6 +60,7 @@ public class CubeGenerator : MonoBehaviour
             }
             newCube.transform.parent = cubeGenTransform;
             newCube.tag = "CubeTag";
+            
             //newCube.name = "Cube" + i;
 
             //doesnt work
@@ -82,6 +90,17 @@ public class CubeGenerator : MonoBehaviour
             else
             {
                 Debug.LogError("TextMeshProUGUI component not found on the label prefab!");
+            }
+            // Colour Bullshit
+            cubeColors[newCube.name] = GetRandomColor();
+            Renderer renderer = newCube.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.material.color = cubeColors[newCube.name];
+            }
+            else
+            {
+                Debug.LogError("Renderer component not found on cube prefab!");
             }
         }
     }
@@ -117,6 +136,15 @@ public class CubeGenerator : MonoBehaviour
                 // Add a collider component to the cube and set it as a trigger
                 collider = newCube.AddComponent<BoxCollider>();
                 collider.isTrigger = true;
+            }
+            Renderer renderer = newCube.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.material.color = GetRandomColor();
+            }
+            else
+            {
+                Debug.LogError("Renderer component not found on cube prefab!");
             }
 
             newCube.transform.parent = cubeGenTransform;
@@ -183,6 +211,21 @@ public class CubeGenerator : MonoBehaviour
                 {
                     if (child.CompareTag("CubeTag"))
                     {
+                        // Colour Bullshit that doesnt work
+                        string cubeName = child.gameObject.name;
+                        if (cubeColors.ContainsKey(cubeName))
+                        {
+                            // Update cube color in the dictionary
+                            Renderer renderer = child.GetComponent<Renderer>();
+                            if (renderer != null)
+                            {
+                                cubeColors[cubeName] = renderer.material.color;
+                            }
+                            else
+                            {
+                                Debug.LogError("Renderer component not found on cube object!");
+                            }
+                        }
                         // Check if the child has any nested objects
                         // If so, destroy them as well
                         foreach (Transform nestedChild in child)

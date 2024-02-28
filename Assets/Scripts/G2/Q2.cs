@@ -6,8 +6,6 @@ using UnityEngine.UI;
 
 public class Q2 : MonoBehaviour
 { 
-    
-
     public static int CalculateGCD(int a, int b)
     {
         

@@ -7,6 +7,11 @@ public class QuestionManager : MonoBehaviour
     public Transform questionsParent; // Reference to the parent object containing all question buttons
     public GameObject panelObj; // Reference to the panel object
 
+    public Sprite greyTickSprite;
+    public Image tickImage;
+    public Image tickImage2;
+
+
     private Vector3[] originalPositions; // Array to store the original positions of the buttons
    
 
@@ -47,7 +52,10 @@ public class QuestionManager : MonoBehaviour
     {
         MoveButtonsOffscreen();
         panelObj.SetActive(true);
-        
+        tickImage.sprite = greyTickSprite;
+        tickImage2.sprite = greyTickSprite;
+
+
         //panelObj.transform.position = mainCamera.transform.position + mainCamera.transform.forward * 10f; // Set panelObj in front of the camera
     }
 
