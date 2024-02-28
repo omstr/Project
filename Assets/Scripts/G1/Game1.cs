@@ -61,9 +61,16 @@ public class Game1 : MonoBehaviour
     }
     public void CallSaveDataAndReturnToMenu()
     {
-        StartCoroutine(CallSaveData());
+        if (sessionQsAnswered != 0)
+        {
+            StartCoroutine(CallSaveData());
+        }
+        else
+        {
+            InputHandler iHandler = new InputHandler();
+            iHandler.ReturnToPlayMenu();
+        }
 
-        
     }
     public IEnumerator CallSaveData()
     {

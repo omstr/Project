@@ -44,7 +44,11 @@ public class CodeDisplay : MonoBehaviour
     public string strResult; // for string comparisons
 
     public string[] expectedStrings;
-    
+
+    private bool questionAlreadyAnswered = false;
+    private bool isStringPartCorrect = false;
+    private bool isIntPartCorrect = false;
+
     private string q1ScriptPath = "Assets/Scripts/G2/Q1Fib.cs"; 
     private string q2ScriptPath = "Assets/Scripts/G2/Q2.cs";
     private string q3ScriptPath = "Assets/Scripts/G2/Q3.cs";
@@ -84,6 +88,10 @@ public class CodeDisplay : MonoBehaviour
             
             CheckAnswer();
         }
+    }
+    public void SetQuestionAnsweredFalse()
+    {
+        questionAlreadyAnswered = false;
     }
     public void CheckAnswer()
     {
@@ -213,12 +221,14 @@ public class CodeDisplay : MonoBehaviour
 
             storedImage.sprite = correctSprite;
             storedImage.gameObject.SetActive(true);
-
-            G2Script.totalScore += 1;
-            G2Script.questionsAnsweredCorrectly += 1;
+            if (questionAlreadyAnswered == false)
+            {
+                G2Script.totalScore += 1;
+                G2Script.questionsAnsweredCorrectly += 1;
+            }
             scoreDisplay.text = "Points: " + G2Script.totalScore;
 
-
+            questionAlreadyAnswered = true;
         }
         else
         {
@@ -247,12 +257,15 @@ public class CodeDisplay : MonoBehaviour
             tickImage.sprite = greenTickSprite;
             storedImage.sprite = correctSprite;
             storedImage.gameObject.SetActive(true);
-
-            G2Script.totalScore += 1;
-            G2Script.questionsAnsweredCorrectly += 1;
+            if (questionAlreadyAnswered == false)
+            {
+                G2Script.totalScore += 1;
+                G2Script.questionsAnsweredCorrectly += 1;
+            }
+            
             scoreDisplay.text = "Points: " + G2Script.totalScore;
             //Debug.Log(strResult);
-
+            questionAlreadyAnswered = true;
         }
         else
         {
@@ -302,31 +315,44 @@ public class CodeDisplay : MonoBehaviour
                 if (stringPartCorrect)
                 {
                     Debug.Log("Correct string part!");
-                    G2Script.totalScore += 1; // Increase score for correct string part
-                    G2Script.questionsAnsweredCorrectly += 1;
+                    //G2Script.totalScore += 1; // Increase score for correct string part
+
+
+                    //G2Script.questionsAnsweredCorrectly += 1;
+                    
                     scoreDisplay.text = "Points: " + G2Script.totalScore;
                     storedImage.sprite = orangeSprite;
                     tickImage.sprite = greenTickSprite;
+                    tickImage2.sprite = greyTickSprite;
+
                 }
                 if (intPartCorrect)
                 {
                     Debug.Log("Correct integer part!");
-                    G2Script.totalScore += 1; // Increase score for correct integer part
-                    G2Script.questionsAnsweredCorrectly += 1;
+                    //G2Script.totalScore += 1; // Increase score for correct integer part
+                   
                     scoreDisplay.text = "Points: " + G2Script.totalScore;
                     storedImage.sprite = orangeSprite;
                     tickImage2.sprite = greenTickSprite;
+                    tickImage.sprite = greyTickSprite;
                 }
 
                 // Update UI based on correctness of parts
                 if (stringPartCorrect && intPartCorrect)
                 {
                     Debug.Log("Correct answer!");
-
+                    if(questionAlreadyAnswered == false)
+                    {
+                        G2Script.totalScore += 2;
+                        G2Script.questionsAnsweredCorrectly += 2;
+                    }
+                    
+                    scoreDisplay.text = "Points: " + G2Script.totalScore;
                     storedImage.sprite = correctSprite;
                     storedImage.gameObject.SetActive(true);
                     tickImage.sprite = greenTickSprite;
                     tickImage2.sprite = greenTickSprite;
+                    questionAlreadyAnswered = true;
 
 
                 }
@@ -336,8 +362,8 @@ public class CodeDisplay : MonoBehaviour
                     storedImage.sprite = redSprite;
                     storedImage.gameObject.SetActive(true);
                     G2Script.attempts += 1;
-                    tickImage.sprite = greyTickSprite;
-                    tickImage2.sprite = greyTickSprite;
+                    //tickImage.sprite = greyTickSprite;
+                    //tickImage2.sprite = greyTickSprite;
                 }
             }
             else
@@ -349,69 +375,73 @@ public class CodeDisplay : MonoBehaviour
         {
             string userInputString = parts[0].Trim();
 
+            //// Check if the input is a valid integer
+            //if (int.TryParse(userInputString, out int userInputInt))
+            //{
+            //    bool intPartCorrect = userInputInt == result;
+            //    if (intPartCorrect)
+            //    {
+            //        Debug.Log("Correct integer part!");
+            //        G2Script.totalScore += 1; // Increase score for correct integer part
+
+            //        Debug.Log("Correct answer!");
+            //        tickImage2.sprite = greenTickSprite;
+            //        tickImage.sprite = greyTickSprite;
+            //        storedImage.sprite = orangeSprite;
+            //        storedImage.gameObject.SetActive(true);
+            //        G2Script.questionsAnsweredCorrectly += 1;
+
+            //        scoreDisplay.text = "Points: " + G2Script.totalScore;
+            //    }
+            //    else
+            //    {
+            //        tickImage2.sprite = greyTickSprite;
+            //        Debug.Log("Incorrect integer part!");
+            //        storedImage.sprite = redSprite;
+            //        storedImage.gameObject.SetActive(true);
+            //        G2Script.attempts += 1;
+
+            //    }
+            //}
+            //else
+            //{
+            //    bool stringPartCorrect = false;
+            //    foreach (string expectedString in expectedStrings)
+            //    {
+            //        if (userInputString.Equals(expectedString))
+            //        {
+            //            stringPartCorrect = true;
+            //            break;
+            //        }
+            //    }
+            //    if (stringPartCorrect)
+            //    {
+            //        Debug.Log("Correct string part!");
+            //        tickImage.sprite = greenTickSprite;
+            //        tickImage2.sprite = greyTickSprite;
+            //        G2Script.totalScore += 1; // Increase score for correct string part
+            //        storedImage.sprite = orangeSprite;
+            //        storedImage.gameObject.SetActive(true);
+            //        G2Script.questionsAnsweredCorrectly += 1;
+
+            //        scoreDisplay.text = "Points: " + G2Script.totalScore;
+            //    }
+            //    else
+            //    {
+            //        Debug.Log("Incorrect string part!");
+            //        tickImage.sprite = greyTickSprite;
+            //        storedImage.sprite = redSprite;
+            //        storedImage.gameObject.SetActive(true);
+            //        G2Script.attempts += 1;
+
+            //        foreach (string expectedString in expectedStrings)
+            //        {
+            //            Debug.Log("string: "+ expectedString);
+            //        }
+            //    }
+            //}
             // Check if the input is a valid integer
-            if (int.TryParse(userInputString, out int userInputInt))
-            {
-                bool intPartCorrect = userInputInt == result;
-                if (intPartCorrect)
-                {
-                    Debug.Log("Correct integer part!");
-                    G2Script.totalScore += 1; // Increase score for correct integer part
-
-                    Debug.Log("Correct answer!");
-                    tickImage2.sprite = greenTickSprite;
-                    storedImage.sprite = orangeSprite;
-                    storedImage.gameObject.SetActive(true);
-                    G2Script.questionsAnsweredCorrectly += 1;
-
-                    scoreDisplay.text = "Points: " + G2Script.totalScore;
-                }
-                else
-                {
-                    tickImage2.sprite = greyTickSprite;
-                    Debug.Log("Incorrect integer part!");
-                    storedImage.sprite = redSprite;
-                    storedImage.gameObject.SetActive(true);
-                    G2Script.attempts += 1;
-                    
-                }
-            }
-            else
-            {
-                bool stringPartCorrect = false;
-                foreach (string expectedString in expectedStrings)
-                {
-                    if (userInputString.Equals(expectedString))
-                    {
-                        stringPartCorrect = true;
-                        break;
-                    }
-                }
-                if (stringPartCorrect)
-                {
-                    Debug.Log("Correct string part!");
-                    tickImage.sprite = greenTickSprite;
-                    G2Script.totalScore += 1; // Increase score for correct string part
-                    storedImage.sprite = orangeSprite;
-                    storedImage.gameObject.SetActive(true);
-                    G2Script.questionsAnsweredCorrectly += 1;
-
-                    scoreDisplay.text = "Points: " + G2Script.totalScore;
-                }
-                else
-                {
-                    Debug.Log("Incorrect string part!");
-                    tickImage.sprite = greyTickSprite;
-                    storedImage.sprite = redSprite;
-                    storedImage.gameObject.SetActive(true);
-                    G2Script.attempts += 1;
-                    
-                    foreach (string expectedString in expectedStrings)
-                    {
-                        Debug.Log("string: "+ expectedString);
-                    }
-                }
-            }
+            
         }
         else
         {
@@ -645,7 +675,7 @@ public class CodeDisplay : MonoBehaviour
                 Debug.Log(ch + ", ");
             }
             //TODO: CHANGE PER QUESTION
-            questionLabel.text = "What will this output look like? What is the amount of O's printed? randNum = " + randNum + "\n \n Hint: To answer both questions enter in string,int format.";
+            questionLabel.text = "What will this output look like? What is the amount of O's printed? randNum = " + randNum + "\n \n Hint: enter in string,int format.";
 
             codePanel.SetActive(true);
 

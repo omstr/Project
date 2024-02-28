@@ -39,10 +39,22 @@ public class G2Script : MonoBehaviour
     {
         G2Script.sessionQsAnswered += 1;
     }
+    public void IncrementScore(int points)
+    {
+        // Increment the score by the specified number of points
+        G2Script.totalScore += points;
+    }
     public void CallSaveDataAndReturnToMenu()
     {
-        StartCoroutine(CallSaveData());
-
+        if (sessionQsAnswered != 0)
+        {
+            StartCoroutine(CallSaveData());
+        }
+        else
+        {
+            InputHandler iHandler = new InputHandler();
+            iHandler.ReturnToPlayMenu();
+        }
 
     }
     public IEnumerator CallSaveData()
