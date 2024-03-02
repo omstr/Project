@@ -72,6 +72,7 @@ public class Game1 : MonoBehaviour
         }
 
     }
+    //Storing the data from the game in the fields that get sent to SQL table
     public IEnumerator CallSaveData()
     {
         DateTime currentUtcDateTime = DateTime.UtcNow;
@@ -105,6 +106,7 @@ public class Game1 : MonoBehaviour
 
 
     }
+    //Creating data to send to the mySQL table
     IEnumerator SaveUserData()
     {
         WWWForm form = new WWWForm();
@@ -202,6 +204,11 @@ public class Game1 : MonoBehaviour
 
         return randomNumbers;
     }
+    /// <summary>
+    /// Normal Bubble Sort, used to calculate the answer of the number list beforehand, to be used for comparisons in the DIY bubble sort mode
+    /// </summary>
+    /// <param></param>
+    /// <returns></returns>
     public List<int> BubbleSort(List<int> list)
     {
         List<int> sortedList = new List<int>(list);
@@ -233,7 +240,10 @@ public class Game1 : MonoBehaviour
         return sortedList;
     }
 
-    // For an absolutely unknown reason this method doesnt want to call methods from any other class and i wasted a day on it maybe i'm being stupid but i just moved it to InputHandler
+    // For an absolutely unknown reason this method doesnt want to call methods from any other class and i wasted too long on it maybe i'm being stupid
+    // but i just moved it and all the logic that was supposed to be here, to InputHandler
+
+    //OLD
     public List<int> SteppedBubbleSort(List<int> list)
     {
         List<int> sortedList = new List<int>(list);

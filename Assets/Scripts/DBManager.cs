@@ -13,7 +13,7 @@ public class DBManager : MonoBehaviour
     public static int attempts;
     public static string timestamp;
     public static string game;
-    public static string[][] g1Scores;
+    //public static string[][] g1Scores;
 
     public static bool LoggedIn { get { return username != null; } }
     public static void LogOut()

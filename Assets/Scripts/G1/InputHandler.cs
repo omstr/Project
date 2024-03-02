@@ -31,10 +31,11 @@ public class InputHandler : MonoBehaviour
     public Image crossImage;
     public int maxNumbers = 9;
 
-
-    private Coroutine bubbleSortCoroutine;
-    private Coroutine teachBubbleSortCoroutine;
+    private bool isSorting = false;
+   
     private Coroutine clearCoroutine;
+    private Coroutine sortingCoroutine;
+
 
     private void Start()
     {
@@ -128,7 +129,7 @@ public class InputHandler : MonoBehaviour
         
         string sortedString = string.Join(",", sortedList);
         sortedOutput.text = sortedString;
-        ClearButton(() =>
+        Clear(() =>
         {
             // this code will be executed after the clear coroutine finishes
             cubeGenerator.InstantiateCubes(intList);
@@ -141,8 +142,14 @@ public class InputHandler : MonoBehaviour
         sortedList.Clear();
         intList.Clear();
     }
+    public void StopButton()
+    {
+        StopCoroutine(clearCoroutine);
+        StopCoroutine(sortingCoroutine);
+        //StopCoroutine(teachingCoroutine);
+    }
 
-    public void ClearButton(Action callback)
+    public void Clear(Action callback)
     {
         // Stop the clear coroutine if it's running
         if (clearCoroutine != null)
@@ -150,26 +157,20 @@ public class InputHandler : MonoBehaviour
             StopCoroutine(clearCoroutine);
         }
 
-        // Start the clear coroutine
-        clearCoroutine = StartCoroutine(ClearButtonCoroutine(() =>
+        // start the clear coroutine
+        clearCoroutine = StartCoroutine(ClearCoroutine(() =>
         {
-            // After clearing is complete, invoke the callback to start cube instantiation
+            // after clearing is complete, invoke the callback to start cube instantiation
             callback?.Invoke();
         }));
     }
-    private IEnumerator ClearButtonCoroutine(Action callback)
+    private IEnumerator ClearCoroutine(Action callback)
     {
-        // Wait for one frame to ensure all objects are destroyed
+        // wait for one frame to ensure all objects are destroyed
         yield return null;
 
-        if (bubbleSortCoroutine != null)
-        {
-            StopCoroutine(bubbleSortCoroutine);
-        }
-        if (teachBubbleSortCoroutine != null)
-        {
-            StopCoroutine(teachBubbleSortCoroutine);
-        }
+        
+        
         Transform game1Transform = transform.parent.Find("Game1");
 
         if (game1Transform != null)
@@ -204,7 +205,11 @@ public class InputHandler : MonoBehaviour
     }
     public void StartSteppedBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
-        bubbleSortCoroutine = StartCoroutine(SteppedBubbleSortCoroutine(list, onComplete));
+        if (!isSorting)
+        {
+            isSorting = true;
+            sortingCoroutine = StartCoroutine(SteppedBubbleSortCoroutine(list, onComplete));
+        }
     }
     IEnumerator SteppedBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
@@ -273,10 +278,16 @@ public class InputHandler : MonoBehaviour
         } while (swapped);
 
         Debug.Log("Sorting Complete");
-
+      
         // Invoke the callback with the sorted list
         onComplete?.Invoke(sortedList);
     }
+    /// <summary>
+    /// Unused, was meant for swapping cubes rather than instantiation & destruction
+    /// </summary>
+    /// <param name="list"></param>
+    /// <param name="onComplete"></param>
+    /// <returns></returns>
     IEnumerator SteppedObjectBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
         List<int> prevPassList = new List<int>();
@@ -329,6 +340,12 @@ public class InputHandler : MonoBehaviour
         // Invoke the callback with the sorted list
         onComplete?.Invoke(cubeObjects.Select(cube => int.Parse(cube.name)).ToList());
     }
+    /// <summary>
+    /// The method invoked when in DIY mode
+    /// </summary>
+    /// <param name="list"></param>
+    /// <param name="onComplete"></param>
+    /// <returns></returns>
     public IEnumerator TeachSteppedBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
         Game1 game1 = new Game1();
@@ -438,13 +455,13 @@ public class InputHandler : MonoBehaviour
     private void SpawnImageOverCube(GameObject cube, Image chosenImage)
     {
 
-        // Get the main camera
+        // get the main camera
         Camera mainCamera = Camera.main;
 
-        // Check if the main camera exists
+        // check if the main camera exists
         if (mainCamera != null)
         {
-            // Calculate the screen space position of the cube
+            // calculate the screen space position of the cube
             Vector3 screenPosition = mainCamera.WorldToScreenPoint(cube.transform.position);
 
             // Convert the screen space position to canvas space
@@ -463,12 +480,19 @@ public class InputHandler : MonoBehaviour
             Debug.LogError("Main camera not found.");
         }
     }
+
+    //
     private bool ListsAreEqual(List<int> list1, List<int> list2)
     {
         // Check if two lists are equal
         return list1.SequenceEqual(list2);
     }
 
+    /// <summary>
+    /// Part of the DIY mode, waiting for the user to drag cubes
+    /// </summary>
+    /// <param name="cubeObjects"></param>
+    /// <returns></returns>
     private IEnumerator WaitForUserSwap(List<GameObject> cubeObjects)
     {
         bool userSwapped = false;
@@ -594,7 +618,7 @@ public class InputHandler : MonoBehaviour
         intList = cubeGenerator.grabCubeText();
 
         List<int> cubeNames = cubeGenerator.grabCubeNames();
-        teachBubbleSortCoroutine = StartCoroutine(TeachSteppedBubbleSortCoroutine(cubeNames, (sortedCubeNames)  =>
+        StartCoroutine(TeachSteppedBubbleSortCoroutine(cubeNames, (sortedCubeNames)  =>
         {
             
             // Handle the sorted list 
@@ -619,7 +643,7 @@ public class InputHandler : MonoBehaviour
     }
     public void GenerateRandomButton()
     {
-        ClearButton(() =>
+        Clear(() =>
         {
             // This code will be executed after the clear coroutine finishes
             cubeGenerator.InstantiateRandomCubes(4, 9);

@@ -3291,9 +3291,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Clear
-
-'
+  m_text: Stop
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5836,7 +5834,7 @@ GameObject:
   - component: {fileID: 2091326084}
   - component: {fileID: 2091326083}
   m_Layer: 5
-  m_Name: clearButton
+  m_Name: stopButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5908,7 +5906,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 806121265}
         m_TargetAssemblyTypeName: InputHandler, Assembly-CSharp
-        m_MethodName: ClearButton
+        m_MethodName: StopButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
