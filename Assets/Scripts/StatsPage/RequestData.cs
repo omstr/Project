@@ -4,12 +4,41 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
+
+
+// Custom class to represent each record in the JSON array
+[Serializable]
+public class ScoreRecord
+{
+    public string tablename;
+    public string pointsPerSession;
+    public string sessionQsAnswered;
+    public string sessionSuccessRate;
+    public string attempts;
+    public string timestamp;
+}
+public static class JsonHelper
+{
+    // utility method to deserialize JSON array into an array of objects
+    public static T[] FromJson<T>(string json)
+    {
+        Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
+        return wrapper.Items;
+    }
+
+    // wrapper class to deserialize JSON array
+    [System.Serializable]
+    private class Wrapper<T>
+    {
+        public T[] Items;
+    }
+}
 public class RequestData : MonoBehaviour
 {
-    public List<Dictionary<string, string>> game1Data;
-    public List<Dictionary<string, string>> game2Data;
-    private string[,] scoresData;
+    public List<string[]> game1ScoresData = new List<string[]>();
+    public List<string[]> game2ScoresData = new List<string[]>();
     public void GetGameData()
     {
         StartCoroutine(RequestMethod());
@@ -35,47 +64,50 @@ public class RequestData : MonoBehaviour
             }
 
             string response = www.downloadHandler.text;
-            Debug.Log("response: " + response);
-            //string[] rows = response.Split('\n');
-            string[] rows = response.Split(new string[] { "<br>" }, StringSplitOptions.RemoveEmptyEntries);
-            scoresData = new string[rows.Length, 6]; // Assuming 6 columns
-            foreach(string str in rows)
+            Debug.Log("Response: \n" + response);
+
+            // Split the response by newlines to separate data for each table
+            string[] lines = response.Split('\n');
+
+            // Initialize variables to store data for the current table
+            List<string[]> currentTableData = null;
+
+            foreach (string line in lines)
             {
-                Debug.Log(str);
-            }
-            
-            for (int i = 0; i < rows.Length; i++)
-            {
-                string[] columns = rows[i].Split(','); // Assuming columns are separated by commas
-                for (int j = 0; j < columns.Length; j++)
+                // Check if the line indicates the beginning of data for a new table
+                if (line.StartsWith("Table:"))
                 {
-                    scoresData[i, j] = columns[j];
+                    string tableName = line.Substring("Table: ".Length).Trim();
+
+                    // Set currentTableData based on the table name
+                    switch (tableName)
+                    {
+                        case "Game1":
+                            currentTableData = game1ScoresData;
+                            break;
+                        case "Game2":
+                            currentTableData = game2ScoresData;
+                            break;
+                            // Add more cases for additional tables if needed
+                    }
+                }
+                else
+                {
+                    // Parse the line as data for the current table and add it to currentTableData
+                    if (currentTableData != null)
+                    {
+                        string[] rowData = line.Split(',');
+                        currentTableData.Add(rowData);
+                    }
                 }
             }
 
-            // Now you can access scoresData array to get the scores
-            Debug.Log("Scores Count: " + rows.Length);
+            // Now you can access game1ScoresData and game2ScoresData lists to get the scores
+            Debug.Log("Game 1 Scores Count: " + game1ScoresData.Count);
+            Debug.Log("Game 2 Scores Count: " + game2ScoresData.Count);
 
+            SceneManager.LoadScene("StatsMenu");
 
-            //if (data != null && data.ContainsKey(tableName))
-            //{
-            //    List<Dictionary<string, string>> tableData = data[tableName];
-            //    foreach (Dictionary<string, string> rowData in tableData)
-            //    {
-            //        // Access individual rows and extract data as needed
-            //        string pointsPerSession = rowData["pointsPerSession"];
-            //        string sessionQsAnswered = rowData["sessionQsAnswered"];
-            //        string sessionSuccessRate = rowData["sessionSuccessRate"];
-            //        string attempts = rowData["attempts"];
-            //        string timestamp = rowData["timestamp"];
-
-            //        // Store the retrieved data in DBManager or use it as needed
-            //    }
-            //}
-            //else
-            //{
-            //    EditorUtility.DisplayDialog("Error", "No data found for the user.", "OK");
-            //}
         }
     }
 }

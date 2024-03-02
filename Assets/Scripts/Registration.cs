@@ -50,5 +50,9 @@ public class Registration : MonoBehaviour
     public void VerifyInputs()
     {
         enterButton.interactable = (usernameInput.text.Length >= 4);
+        //if (usernameInput.text.Equals(""))
+        //{
+        //    EditorUtility.DisplayDialog("Empty Username", "Username Field cannot be empty", "OK");
+        //}
     }
 }
