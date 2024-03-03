@@ -30,15 +30,17 @@
     $scoresArray = array();
 
     //getting fields from game1_scores
-    $scorescheckquery = "SELECT userid, highestScore, initialScore, attempts, timestamp FROM game1_scores WHERE userid='" . $userid . "';";
+    // dont need to select userid?
+    $scorescheckquery = "SELECT pointsPerSession, sessionSuccessRate, sessionQsAnswered, attempts, timestamp FROM game1_scores WHERE userid='" . $userid . "';";
     $scorescheck = mysqli_query($conn, $scorescheckquery) or die("3: Scores check query failed"); // Scores check failed
 
     // Check if any scores were found for the user
     if (mysqli_num_rows($scorescheck) > 0) {
         // Scores found, fetch and process the data
         while ($row = mysqli_fetch_assoc($scorescheck)) {
-            $highestScore = $row['highestScore'];
-            $initialScore = $row['initialScore'];
+            $pointsPerSession = $row['pointsPerSession'];
+            $sessionSuccessRate = $row['sessionSuccessRate'];
+            $sessionQsAnswered = $row['sessionQsAnswered'];
             $attempts = $row['attempts'];
             $timestamp = $row['timestamp'];
             $scoresArray[] = $row;
@@ -47,14 +49,15 @@
         }
     } else {
         // No scores found for the user
-        echo "6: No scores found for the user\t";
+        echo "6: No scores found for the userid\t";
         //exit();
     }
     //get login info from query
     $existingusertableinfo = mysqli_fetch_assoc($namecheck);
     $existinggame1scoreinfo = mysqli_fetch_assoc($scorescheck);
     //echo "0, ";
-    echo "0\t" . $existinggame1scoreinfo["highestScore"];
+    echo "0\t" . $existinggame1scoreinfo["pointsPerSession"];
+    echo "$userid";
 
 
 ?>
