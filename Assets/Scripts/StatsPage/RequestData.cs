@@ -35,15 +35,23 @@ public static class JsonHelper
         public T[] Items;
     }
 }
+
 public class RequestData : MonoBehaviour
 {
+    private void Awake()
+    {
+        if (DBManager.username == null)
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        }
+    }
     public List<string[]> game1ScoresData = new List<string[]>();
     public List<string[]> game2ScoresData = new List<string[]>();
     public void GetGameData()
     {
         StartCoroutine(RequestMethod());
     }
-    IEnumerator RequestMethod()
+    public IEnumerator RequestMethod()
     {
         WWWForm form = new WWWForm();
         form.AddField("username", DBManager.username);
@@ -109,5 +117,15 @@ public class RequestData : MonoBehaviour
             SceneManager.LoadScene("StatsMenu");
 
         }
+    }
+    public List<string[]> getGame1ScoresData()
+    {
+        return game1ScoresData;
+        
+    }
+    public List<string[]> getGame2ScoresData()
+    {
+        return game2ScoresData;
+
     }
 }

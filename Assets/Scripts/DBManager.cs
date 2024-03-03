@@ -9,7 +9,7 @@ public class DBManager : MonoBehaviour
     public static int userid;
     public static int pointsPerSession;
     public static int sessionQsAnswered;
-    public static int sessionSuccessRate;
+    public static decimal sessionSuccessRate;
     public static int attempts;
     public static string timestamp;
     public static string game;

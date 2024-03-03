@@ -8,6 +8,15 @@ using System.Linq;
 using UnityEngine.SceneManagement;
 using UnityEditor;
 
+/// <summary>
+/// Bugs with Game 1 that may carry over 
+/// 
+/// * FIX CLEAR BUTTON NOT STOPPING SORT COROUTINE, "coroutines not found" 
+/// * If I have time to implement consistent colours in Game1, either i grab the colours of cubes before destruction, or i might have to completely change the destroy/reinstantiate method and swap the cubes either physically or by swapping names
+/// * Tick & incorrect icon not removed on regeneration, or when the user continues the dragging cube
+/// * teaching mode has the prism icon helping too much
+/// * Incorrect swapping logic not done yet, if the user is incorrect when swapping the cubes, it should reset the list to how it was before the incorrect move, but all the SQL stuff should still execute, +1 attempts, +sessionQsAnswered ..
+/// </summary>
 public class Game1 : MonoBehaviour
 {
     public CubeGenerator cubeGenerator;
@@ -17,7 +26,7 @@ public class Game1 : MonoBehaviour
     public static int tempScore;
     public static int pointsPerSession;
     public static int sessionQsAnswered;
-    public static int sessionSuccessRate;
+    public static decimal sessionSuccessRate;
     public static int attempts;
     public static string timestamp;
     public static int questionsAnsweredCorrectly;
@@ -75,6 +84,7 @@ public class Game1 : MonoBehaviour
     //Storing the data from the game in the fields that get sent to SQL table
     public IEnumerator CallSaveData()
     {
+        int decimalPlaces = 2;
         DateTime currentUtcDateTime = DateTime.UtcNow;
         string strCurrTime = currentUtcDateTime.ToString("yyyy-MM-dd HH:mm:ss");
         
@@ -88,7 +98,8 @@ public class Game1 : MonoBehaviour
         DBManager.sessionQsAnswered = sessionQsAnswered;
         if (sessionQsAnswered != 0)
         {
-            sessionSuccessRate = (questionsAnsweredCorrectly / sessionQsAnswered) * 100;
+            sessionSuccessRate = (decimal)(((float)questionsAnsweredCorrectly / sessionQsAnswered) * 100);
+            sessionSuccessRate = Math.Round(sessionSuccessRate, decimalPlaces);
         }
         else
         {
@@ -115,7 +126,7 @@ public class Game1 : MonoBehaviour
         form.AddField("pointsPerSession", DBManager.pointsPerSession);
         
         form.AddField("sessionQsAnswered", DBManager.sessionQsAnswered);
-        form.AddField("sessionSuccessRate", DBManager.sessionSuccessRate);
+        form.AddField("sessionSuccessRate", DBManager.sessionSuccessRate.ToString("0.00"));
         form.AddField("attempts", DBManager.attempts);
         form.AddField("timestamp", DBManager.timestamp);
         form.AddField("game", DBManager.game);
@@ -162,10 +173,6 @@ public class Game1 : MonoBehaviour
             tempScore += 1;
             Debug.LogError("scoreDisplay is null!");
         }
-        //DBManager.initialScore = tempScore;
-
-
-
 
         // Maybe: have to have a total score variable - This will just be for the user? 
         //have to have a per-game score variable that gets reset on teach completion

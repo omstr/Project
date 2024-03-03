@@ -8,7 +8,7 @@ public class G2Script : MonoBehaviour
 {
     public static int pointsPerSession;
     public static int sessionQsAnswered;
-    public static int sessionSuccessRate;
+    public static decimal sessionSuccessRate;
     public static int attempts;
     public static string timestamp;
     public static int questionsAnsweredCorrectly;
@@ -59,6 +59,8 @@ public class G2Script : MonoBehaviour
     }
     public IEnumerator CallSaveData()
     {
+        int decimalPlaces = 2;
+
         DateTime currentUtcDateTime = DateTime.UtcNow;
         string strCurrTime = currentUtcDateTime.ToString("yyyy-MM-dd HH:mm:ss");
 
@@ -73,7 +75,8 @@ public class G2Script : MonoBehaviour
         DBManager.sessionQsAnswered = sessionQsAnswered;
         if (sessionQsAnswered != 0)
         {
-            sessionSuccessRate = (questionsAnsweredCorrectly / sessionQsAnswered) * 100;
+            sessionSuccessRate = (decimal)(((float)questionsAnsweredCorrectly / sessionQsAnswered) * 100);
+            sessionSuccessRate = Math.Round(sessionSuccessRate, decimalPlaces);
         }
         else
         {
@@ -99,7 +102,7 @@ public class G2Script : MonoBehaviour
         form.AddField("pointsPerSession", DBManager.pointsPerSession);
 
         form.AddField("sessionQsAnswered", DBManager.sessionQsAnswered);
-        form.AddField("sessionSuccessRate", DBManager.sessionSuccessRate);
+        form.AddField("sessionSuccessRate", DBManager.sessionSuccessRate.ToString("0.00"));
         form.AddField("attempts", DBManager.attempts);
         form.AddField("timestamp", DBManager.timestamp);
         form.AddField("game", DBManager.game);
