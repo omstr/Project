@@ -26,9 +26,32 @@ public class MainMenu : MonoBehaviour
     }
     public void LoadUserMenu()
     {
-        mainMenu.SetActive(false);
-        userMenu.SetActive(true);
+        SceneManager.LoadScene("UserScene");
+    }
+    public void LoadProfile()
+    {
+        // Retrieve the existing DataHandler instance in the scene
+        DataHandler dH = FindObjectOfType<DataHandler>();
+
+        // Check if a DataHandler instance exists
+        if (dH != null)
+        {
+            // Start the data retrieval process
+            //dH.StartRequestDataProcess();
+            dH.FetchDataAndExecuteStatsMethods();
+        }
+        else
+        {
+            Debug.LogError("DataHandler component not found in the scene.");
+        }
+
+        
+        
+    }
+    public void Exit()
+    {
+        DBManager.LogOut();
+        SceneManager.LoadScene("UserScene");
     }
 
-    
 }

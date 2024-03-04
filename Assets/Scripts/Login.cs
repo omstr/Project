@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Login : MonoBehaviour
@@ -40,8 +41,8 @@ public class Login : MonoBehaviour
                 DBManager.username = usernameInput.text;
                 //Need to store scores in DBManager
                 //DBManager.G1Scores = int.Parse(www.text.Split(',')[1]);
-                loginMenu.SetActive(false);
-                mainMenu.SetActive(true);
+                SceneManager.LoadScene("MainMenu");
+                
             }
             else if (www.text[31] == '0')
             {
@@ -50,8 +51,8 @@ public class Login : MonoBehaviour
                 DBManager.username = usernameInput.text;
                 //Need to store scores in DBManager
                 //DBManager.G1Scores = int.Parse(www.text.Split(',')[1]);
-                loginMenu.SetActive(false);
-                mainMenu.SetActive(true);
+                SceneManager.LoadScene("MainMenu");
+                
             }
             else
             {
