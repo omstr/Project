@@ -23,10 +23,10 @@ public class CubeMovement : MonoBehaviour
         if (canDrag)
         {
             // store the initial position when the cube is clicked
-            initialPosition = transform.position;
+            initialPosition = transform.localPosition;
 
             // calculate the offset between the clicked point on the cube and the mouse position
-            offset = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            offset = transform.localPosition - Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -56,7 +56,10 @@ public class CubeMovement : MonoBehaviour
                 if (otherCube.CompareTag("CubeTag"))
                 {
                     // Swap names and labels
-                    SwapNamesAndLabels(this.gameObject, otherCube);
+                    //SwapNamesAndLabels(this.gameObject, otherCube);
+
+                    SwapCubes(this.gameObject, otherCube);
+                    
                 }
             }
 
@@ -64,7 +67,7 @@ public class CubeMovement : MonoBehaviour
             isDragging = false;
 
             // reset the position only if dragging was enabled
-            transform.position = initialPosition;
+            //transform.localPosition = initialPosition;
         }
     }
    
@@ -76,7 +79,7 @@ public class CubeMovement : MonoBehaviour
             // update the position of the cube while dragging
             Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f);
             Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
-            transform.position = curPosition;
+            transform.localPosition = curPosition;
         }
     }
 
@@ -97,5 +100,30 @@ public class CubeMovement : MonoBehaviour
             tempLabel.text = otherLabel.text;
             otherLabel.text = tempText;
         }
+    }
+    private void SwapCubes(GameObject cube1, GameObject cube2)
+    {
+        // Get the X positions of the cubes
+        float tempX = cube1.transform.localPosition.x;
+        float otherX = cube2.transform.localPosition.x;
+
+        // Swap the X positions
+        cube1.transform.localPosition = new Vector3(otherX, cube1.transform.localPosition.y, cube1.transform.localPosition.z);
+        cube2.transform.localPosition = new Vector3(tempX, cube2.transform.localPosition.y, cube2.transform.localPosition.z);
+
+        
+
+        // Get the index of each cube in the list
+        int index1 = cube1.transform.GetSiblingIndex();
+        int index2 = cube2.transform.GetSiblingIndex();
+        
+        // Swap their positions in the list
+        cube1.transform.SetSiblingIndex(index2);
+        cube2.transform.SetSiblingIndex(index1);
+
+        // Testing swapping the names
+        //string tempName = cube1.name;
+        //cube1.name = cube2.name;
+        //cube2.name = tempName;
     }
 }

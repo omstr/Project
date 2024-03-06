@@ -172,7 +172,7 @@ public class CodeDisplay : MonoBehaviour
                         // Handle checking answer for Question 8
                         
                         break;
-                    // Add cases for other buttons as needed
+                    // Add cases for other buttons 
                     default:
                         Debug.Log("Question button not assigned a check answer method");
                         break;

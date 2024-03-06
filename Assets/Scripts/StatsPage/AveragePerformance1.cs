@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class AveragePerformance : MonoBehaviour
+public class AveragePerformance1 : MonoBehaviour
 {
 
     public TextMeshProUGUI averagePointsText;
@@ -13,52 +13,6 @@ public class AveragePerformance : MonoBehaviour
     public Image background;
 
     // Method to calculate average performance metrics
-    public void CalculateAverages()
-    {
-        
-        
-
-        // Calculate average points per session
-        float averagePoints = CalculateAveragePointsPerSession();
-
-
-        // Calculate average success rate
-
-        float averageSuccessRate = CalculateAverageSuccessRate();
-        
-        //averageSuccessRateText.text = averageSuccessRate.ToString("0.##") + "%";
-        //Color currentColor = background.color;
-        //currentColor.a = 128;
-        //background.color = currentColor;
-        //// Set the text color based on the success rate
-        //if (successRate < 40)
-        //{
-
-        //    background.color = new Color(1f, 0f, 0f, 0.5f); // Semi-transparent red
-        //}
-        //else if (successRate < 75)
-        //{
-
-        //    background.color = new Color(1f, 0.5f, 0f, 0.5f); // Semi-transparent orange
-        //}
-        //else
-        //{
-
-        //    background.color = new Color(0f, 1f, 0f, 0.5f); // Semi-transparent green
-        //}
-
-
-        // Calculate average number of questions answered per session
-        float averageQuestionsAnswered = CalculateAverageQuestionsAnswered();
-
-        StatImageDisplay SID = new StatImageDisplay();
-        SID.UpdateSuccessRate(averageSuccessRate, averageSuccessRateText, background);
-        // Update UI with calculated averages
-
-        averagePointsText.text = "Average Points per Session: " + averagePoints.ToString();
-        averageSuccessRateText.text = "Average Success Rate: " + averageSuccessRate.ToString("P");
-        averageQuestionsAnsweredText.text = "Average Questions Answered per Session: " + averageQuestionsAnswered.ToString();
-    }
     public void CalculateG1Averages()
     {
 
@@ -374,6 +328,8 @@ public class AveragePerformance : MonoBehaviour
     void Start()
     {
         // Calculate and display average performance metrics when the scene starts
-        CalculateAverages();
+        
+        CalculateG1Averages();
+    
     }
 }

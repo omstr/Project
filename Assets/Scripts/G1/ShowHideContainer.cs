@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class ShowHideContainer : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public GameObject container; // Reference to the container holding the hidden buttons
+    public RectTransform container; // Reference to the container holding the hidden buttons
     public Button button1; // Reference to the first hidden button
     public Button button2; // Reference to the second hidden button
 
@@ -12,8 +12,9 @@ public class ShowHideContainer : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     void Start()
     {
+        container = transform.Find("ButtonRow").GetComponent<RectTransform>();
         // Hide the container and hidden buttons initially
-        container.SetActive(false);
+        container.gameObject.SetActive(false);
         //button1.gameObject.SetActive(false);
         //button2.gameObject.SetActive(false);
     }
@@ -21,7 +22,7 @@ public class ShowHideContainer : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public void OnPointerEnter(PointerEventData eventData)
     {
         isHovering = true;
-        container.SetActive(true);
+        container.gameObject.SetActive(true);
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -30,7 +31,7 @@ public class ShowHideContainer : MonoBehaviour, IPointerEnterHandler, IPointerEx
         // Check if the cursor is outside the container
         if (!IsPointerOverContainer())
         {
-            container.SetActive(false);
+            container.gameObject.SetActive(false);
         }
     }
 

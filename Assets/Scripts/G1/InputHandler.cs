@@ -30,13 +30,17 @@ public class InputHandler : MonoBehaviour
     public Image tickImage;
     public Image crossImage;
     public int maxNumbers = 9;
+    public TextMeshProUGUI questionLabel;
 
     private bool isSorting = false;
    
     private Coroutine clearCoroutine;
     private Coroutine sortingCoroutine;
 
-
+    private void Awake()
+    {
+        questionLabel = transform.Find("QuestionLabel").GetComponent<TextMeshProUGUI>();
+    }
     private void Start()
     {
         cubeGenerator = GameObject.FindObjectOfType<CubeGenerator>();
@@ -90,7 +94,7 @@ public class InputHandler : MonoBehaviour
         //}
         return intList;
     }
-    private void ValidateInput(string text)
+    public void ValidateInput(string text)
     {
         // Validate the input text
         // Allow digits (0-9) and comma (,) characters only
@@ -131,16 +135,18 @@ public class InputHandler : MonoBehaviour
         sortedOutput.text = sortedString;
         Clear(() =>
         {
+            
             // this code will be executed after the clear coroutine finishes
             cubeGenerator.InstantiateCubes(intList);
-        });
 
+        });
         
+
         List<GameObject> cubeObjects = cubeGenerator.grabCubes();
 
-        MovePrismAboveHighlightedObject(cubeObjects[0]);
-        sortedList.Clear();
-        intList.Clear();
+        //MovePrismAboveHighlightedObject(cubeObjects[0]);
+        //sortedList.Clear();
+        //intList.Clear();
     }
     public void StopButton()
     {
@@ -171,12 +177,9 @@ public class InputHandler : MonoBehaviour
 
         
         
-        Transform game1Transform = transform.parent.Find("Game1");
-
-        if (game1Transform != null)
-        {
+      
             // Ensure the cubeGenTransform is found under game1Transform
-            Transform cubeGenTransform = game1Transform.Find("CubeGen");
+            Transform cubeGenTransform = transform.Find("CubeGen");
 
             if (cubeGenTransform != null)
             {
@@ -195,13 +198,35 @@ public class InputHandler : MonoBehaviour
             {
                 Debug.LogError("Could not find CubeGen transform under Game1.");
             }
-        }
-        else
-        {
-            Debug.LogError("Could not find Game1 transform.");
-        }
+
+        yield return new WaitForSeconds(0.1f);
         callback?.Invoke();
 
+    }
+    public void SwapCubes(GameObject cube1, GameObject cube2)
+    {
+        // Get the X positions of the cubes
+        float tempX = cube1.transform.localPosition.x;
+        float otherX = cube2.transform.localPosition.x;
+
+        // Swap the X positions
+        cube1.transform.localPosition = new Vector3(otherX, cube1.transform.localPosition.y, cube1.transform.localPosition.z);
+        cube2.transform.localPosition = new Vector3(tempX, cube2.transform.localPosition.y, cube2.transform.localPosition.z);
+
+
+
+        // Get the index of each cube in the list
+        int index1 = cube1.transform.GetSiblingIndex();
+        int index2 = cube2.transform.GetSiblingIndex();
+
+        // Swap their positions in the list
+        cube1.transform.SetSiblingIndex(index2);
+        cube2.transform.SetSiblingIndex(index1);
+
+        // Testing swapping the names
+        //string tempName = cube1.name;
+        //cube1.name = cube2.name;
+        //cube2.name = tempName;
     }
     public void StartSteppedBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
@@ -213,13 +238,20 @@ public class InputHandler : MonoBehaviour
     }
     IEnumerator SteppedBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
+        //getting the list
         List<int> sortedList = new List<int>(list);
         List<int> prevPassList = new List<int>();
+
         int size = sortedList.Count;
         bool swapped;
+
         prismObject = GameObject.Find("Prism");
         List<GameObject> cubeObjects = new List<GameObject>();
         cubeObjects = cubeGenerator.grabCubes();
+        questionLabel.text = "";
+        questionLabel.gameObject.SetActive(true);
+        MoveTextAboveHighlightedObject(cubeObjects[0], cubeObjects[1]);
+
         MovePrismAboveHighlightedObject(cubeObjects[0]);
         float adjustedDelay = delayInSeconds * delaySlider.value;
         do
@@ -232,22 +264,30 @@ public class InputHandler : MonoBehaviour
             {
 
                 cubeObjects = cubeGenerator.grabCubes();
-                MovePrismAboveHighlightedObject(cubeObjects[i]);
+                //MovePrismAboveHighlightedObject(cubeObjects[i]);
                 yield return new WaitForSeconds(adjustedDelay);
 
                 if (sortedList[i - 1] > sortedList[i])
                 {
-                    MovePrismAboveHighlightedObject(cubeObjects[i]);
-
+                    
+                    MoveTextAboveHighlightedObject(cubeObjects[i-1], cubeObjects[i]);
+                    
+                    MovePrismAboveHighlightedObject(cubeObjects[i-1]);
+                    yield return new WaitForSeconds(adjustedDelay);
+                   
+                    
                     prevPassList = sortedList;
                     int temp = sortedList[i - 1];
                     sortedList[i - 1] = sortedList[i];
                     sortedList[i] = temp;
-                    //MovePrismAboveHighlightedObject(cubeObjects[i]);
+                    
+                    MovePrismAboveHighlightedObject(cubeObjects[i]);
                     //yield return new WaitForSeconds(0.5f);
-                    // After each pass, destroy the previously instantiated cubes from the enter button and instantiate new ones
-                    cubeGenerator.grabandDestroyCubes();
-                    cubeGenerator.InstantiateCubes(sortedList);
+
+                    
+                    SwapCubes(cubeObjects[i - 1], cubeObjects[i]);
+                    //cubeGenerator.grabandDestroyCubes();
+                    //cubeGenerator.InstantiateCubes(sortedList);
                     
                     cubeObjects = cubeGenerator.grabCubes();
 
@@ -258,24 +298,39 @@ public class InputHandler : MonoBehaviour
                     // Introduce a delay
                     yield return new WaitForSeconds(adjustedDelay);
                     swapped = true;
+                    if(i != size -1) {
+                        MoveTextAboveHighlightedObject(cubeObjects[i], cubeObjects[i + 1]);
+                    }
+
+                    
                     MovePrismAboveHighlightedObject(cubeObjects[i]);
                 }
                 else
                 {
                     cubeObjects = cubeGenerator.grabCubes();
-                    yield return new WaitForSeconds(1f);
+                    MoveTextAboveHighlightedObject(cubeObjects[i - 1], cubeObjects[i]);
                     MovePrismAboveHighlightedObject(cubeObjects[i]);
+                    yield return new WaitForSeconds(adjustedDelay);
+                    
 
                 }
                 cubeObjects = cubeGenerator.grabCubes();
+                if (i == size -1)
+                {
+                    questionLabel.transform.localPosition = new Vector3(cubeObjects[i].transform.localPosition.x, questionLabel.transform.localPosition.y + 10 , questionLabel.transform.localPosition.z);
+                    questionLabel.text = "size reduced";
+
+                    yield return new WaitForSeconds(adjustedDelay);
+                }
             }
 
             
-
+            
             // Reduce the range for the next pass
             size--;
 
         } while (swapped);
+
 
         Debug.Log("Sorting Complete");
       
@@ -358,23 +413,27 @@ public class InputHandler : MonoBehaviour
         
         Game1.attempts = 0;
         cubeObjects = cubeGenerator.grabCubes(); // NullReferenceException
-
+        
         List<int> cubeNames = new List<int>();
-        MovePrismAboveHighlightedObject(cubeObjects[0]);
+        prismObject.SetActive(false);
+        //MovePrismAboveHighlightedObject(cubeObjects[0]);
         do
         {
             swapped = false;
 
             for (int i = 1; i < size; i++)
             {
+                prevPassList = sortedList;
+                
                 if (sortedList[i - 1] > sortedList[i])
                 {
-                    prevPassList = sortedList;
-                    MovePrismAboveHighlightedObject(cubeObjects[i - 1]);
+                    
+                    //MovePrismAboveHighlightedObject(cubeObjects[i - 1]);
                     int temp = sortedList[i - 1];
                     sortedList[i - 1] = sortedList[i];
                     sortedList[i] = temp;
-                    MovePrismAboveHighlightedObject(cubeObjects[i-1]);
+                    //MovePrismAboveHighlightedObject(cubeObjects[i-1]);
+                    //MovePrismAboveHighlightedObject(cubeObjects[i]);
 
 
                     cubeObjects = cubeGenerator.grabCubes();
@@ -384,13 +443,14 @@ public class InputHandler : MonoBehaviour
                     sortedOutput.text = sortedString;
                     // Introduce a delay & wait for the drag & dropping
                     yield return StartCoroutine(WaitForUserSwap(cubeObjects));
+
                     cubeNames = cubeGenerator.grabCubeNames();
                     // Compare cubeNames to sortedList after each pass
                     if (ListsAreEqual(cubeNames, sortedList))
                     {
                         Debug.Log("The list of the cube names" + cubeNames.ToString());
                         Debug.Log("The sorted list from the bubble sort" + sortedList.ToString());
-                        tickImage.enabled = true;
+                        tickImage.gameObject.SetActive(true);
                         SpawnImageOverCube(cubeObjects[i], tickImage);
                         output.text = "Correct";
 
@@ -402,20 +462,22 @@ public class InputHandler : MonoBehaviour
                     }
                     else
                     {
-                        SpawnImageOverCube(cubeObjects[i], crossImage);
+                        SpawnImageOverCube(cubeObjects[i -1 ], crossImage);
                         Debug.Log("The list of the cube names" + cubeNames);
                         Debug.Log("The sorted list from the bubble sort" + sortedList);
                         //TODO: Incorrect Image:  fix incorrect image
                         //SpawnImageOverCube(, crossImage);
-                        crossImage.enabled = true;
+                        crossImage.gameObject.SetActive(true);
                         output.text = "Incorrect";
-
+                        Debug.Log("Sorted List: " + sortedList);
+                        Debug.Log("PrevPass List: " + prevPassList);
                         sortedList = prevPassList;
+
                         //TODO: if incorrect, don't actually swap the cubes, just place the incorrect image and keep the list the same
                         
 
                         //SQL handling
-                        game1.increaseAttempts();
+                        game1.increaseAttempts(); // in this game, i should implement for each attempt, you get minus score, unless your score is already 0
                         swapped = false;
                         yield return null; // will restart the loop but havent tested to what extent, check chat for other implementation
                     }
@@ -469,7 +531,7 @@ public class InputHandler : MonoBehaviour
             Vector2 canvasPosition;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPosition, mainCamera, out canvasPosition);
 
-            canvasPosition.y += 200f;
+            canvasPosition.y += 400f;
 
 
             // Set the tick image's anchored position on the canvas
@@ -496,6 +558,8 @@ public class InputHandler : MonoBehaviour
     private IEnumerator WaitForUserSwap(List<GameObject> cubeObjects)
     {
         bool userSwapped = false;
+        // Get the initial sibling indexes of the cubes
+        List<int> initialSiblingIndexes = cubeObjects.Select(cube => cube.transform.GetSiblingIndex()).ToList();
 
         List<int> initialNames = cubeObjects.Select(cube => int.Parse(cube.name)).ToList();
 
@@ -530,8 +594,13 @@ public class InputHandler : MonoBehaviour
             {
                 if (!cubeDraggedFlags[i])
                 {
-                    // If the cube hasn't been dragged, check if its name has changed
-                    if (int.Parse(cubeObjects[i].name) != initialNames[i])
+                    //// If the cube hasn't been dragged, check if its name has changed
+                    //if (int.Parse(cubeObjects[i].name) != initialNames[i])
+                    //{
+                    //    cubeDraggedFlags[i] = true;
+                    //}
+                    // If the cube hasn't been dragged, check if its sibling index has changed
+                    if (cubeObjects[i].transform.GetSiblingIndex() != initialSiblingIndexes[i])
                     {
                         cubeDraggedFlags[i] = true;
                     }
@@ -579,6 +648,21 @@ public class InputHandler : MonoBehaviour
         }));
         sortedList.Clear();
     }
+    public void SortMergeButton()
+    {
+        MergeSortHandler mSH = new MergeSortHandler();
+        CubeGenerator cubeGene = new CubeGenerator();
+        intList = cubeGenerator.grabCubeNames();
+
+        StartCoroutine(SteppedMergeSortCoroutine(intList, (sortedList) =>
+        {
+            // Handle the sorted list here
+            output.text = inputString;
+            string sortedString = string.Join(",", sortedList);
+            sortedOutput.text = sortedString;
+        }));
+        sortedList.Clear();
+    }
     public void SortObjectsButton()
     {
         List<int> cubeNames = cubeGenerator.grabCubeNames();
@@ -590,6 +674,20 @@ public class InputHandler : MonoBehaviour
             string sortedString = string.Join(",", sortedCubeNames);
             sortedOutput.text = sortedString;
         }));
+    }
+    public void MoveTextAboveHighlightedObject(GameObject highlightedObject, GameObject secondHighlightedObject)
+    {
+        if(highlightedObject != null && secondHighlightedObject != null)
+        {
+            float xCoordinate = highlightedObject.transform.localPosition.x;
+            questionLabel.text = " is " + highlightedObject.name + " > " + secondHighlightedObject.name + "?";
+            questionLabel.transform.localPosition = new Vector3(xCoordinate, secondHighlightedObject.transform.localPosition.y + 400f, secondHighlightedObject.transform.localPosition.z);
+        }
+        else
+        {
+            Debug.LogError("Highlighted object or questionLabel is null.");
+        }
+
     }
     
     public void MovePrismAboveHighlightedObject(GameObject highlightedObject)
@@ -607,7 +705,7 @@ public class InputHandler : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Highlighted object or prism object is null. Assign valid GameObjects in the inspector.");
+            Debug.LogError("Highlighted object or prism object is null. ");
         }
     }
     public void teachSortButton()
@@ -615,19 +713,19 @@ public class InputHandler : MonoBehaviour
         //Game1 game1 = new Game1();
         enterButton.interactable = false;
 
-        intList = cubeGenerator.grabCubeText();
+        intList = cubeGenerator.grabCubeNames();
 
         List<int> cubeNames = cubeGenerator.grabCubeNames();
         StartCoroutine(TeachSteppedBubbleSortCoroutine(cubeNames, (sortedCubeNames)  =>
         {
             
             // Handle the sorted list 
-            output.text = "Teaching? complete";
+            output.text = "Complete";
             string sortedString = string.Join(",", sortedCubeNames);
             sortedOutput.text = sortedString;
 
             Debug.Log("Temp score when trying to save: " + Game1.tempScore);
-            Game1.scoreArray.Add(Game1.tempScore);
+            Game1.scoreArray.Add(Game1.totalScore);
             Debug.Log("Score Array size: " + Game1.scoreArray.Count);
             foreach (int num in Game1.scoreArray)
             {
@@ -653,8 +751,255 @@ public class InputHandler : MonoBehaviour
 
         List<GameObject> cubeObjects = cubeGenerator.grabCubes();
 
-        MovePrismAboveHighlightedObject(cubeObjects[0]);
+        //MovePrismAboveHighlightedObject(cubeObjects[0]);
         
+    }
+    public void SearchLinearButton()
+    {
+        List<GameObject> cubeList = cubeGenerator.grabCubes();
+        int target = int.Parse(textInputField.text);
+        output.text = "type the number you want to find in the input field";
+        
+        StartCoroutine(SteppedLinearSearchCoroutine(cubeList, target, (index) =>
+        {
+            if (index != -1)
+            {
+                output.text = "Target found at index: " + index;
+            }
+            else
+            {
+                output.text = "Target not found";
+            }
+        }));
+        sortedList.Clear();
+    }
+    public IEnumerator SteppedLinearSearchCoroutine(List<GameObject> CubeObjects, int target, Action<int> onComplete)
+    {
+        // Loop through each element in the list
+        for (int i = 0; i < CubeObjects.Count; i++)
+        {
+            // Highlight the current cube representing the current element being searched
+            MovePrismAboveHighlightedObject(CubeObjects[i]);
+
+            // Introduce a delay (replace with your own delay logic)
+            yield return new WaitForSeconds(0.5f);
+
+            // Check if the current element matches the target
+            if (int.Parse(CubeObjects[i].name) == target)
+            {
+                // If found, invoke the callback with the index of the target
+                onComplete?.Invoke(i);
+                yield break; // Exit the coroutine
+            }
+        }
+
+        // If target not found, invoke the callback with -1 indicating not found
+        onComplete?.Invoke(-1);
+    }
+    public void SearchBinarySearchButton()
+    {
+        output.text = "type the number you want to find in the input field";
+        List<GameObject> cubes = cubeGenerator.grabCubes();
+        int target = int.Parse(textInputField.text);
+
+        StartCoroutine(SteppedBinarySearchCoroutine(cubes, target, (foundIndex) =>
+        {
+            if (foundIndex != -1)
+            {
+                output.text = $"Target {target} found at index: {foundIndex}";
+            }
+            else
+            {
+                output.text = $"Target {target} not found in the list";
+            }
+        }));
+    }
+    IEnumerator SteppedBinarySearchCoroutine(List<GameObject> cubes, int target, Action<int> onComplete)
+    {
+        List<int> list = cubeGenerator.grabCubeNames();
+        int left = 0;
+        int right = list.Count - 1;
+
+        while (left <= right)
+        {
+            int mid = left + (right - left) / 2;
+
+            // Check if the target is found at mid
+            if (list[mid] == target)
+            {
+                onComplete?.Invoke(mid);
+                yield break;
+            }
+
+            // If target is greater, ignore left half
+            if (list[mid] < target)
+            {
+                left = mid + 1;
+            }
+            // If target is smaller, ignore right half
+            else
+            {
+                right = mid - 1;
+            }
+
+            // Introduce a delay (optional)
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        // If target is not found
+        onComplete?.Invoke(-1);
+    }
+    public void StartSteppedMergeSortCoroutine(List<int> list, Action<List<int>> onComplete)
+    {
+        if (!isSorting)
+        {
+            isSorting = true;
+            sortingCoroutine = StartCoroutine(SteppedMergeSortCoroutine(list, onComplete));
+        }
+    }
+    /*public IEnumerator SteppedMergeSortCoroutine(List<int> list, Action<List<int>> onComplete)
+    {
+        
+        List<int> sortedList = new List<int>(list);
+        List<int> temp = new List<int>(list);
+
+        int size = sortedList.Count;
+        float adjustedDelay = delayInSeconds; //* delaySlider.value;
+
+        prismObject = GameObject.Find("Prism");
+        List<GameObject> cubeObjects = new List<GameObject>();
+        cubeObjects = cubeGenerator.grabCubes();
+        questionLabel.text = "";
+        questionLabel.gameObject.SetActive(true);
+        MovePrismAboveHighlightedObject(cubeObjects[0]);
+
+        yield return MergeSortRecursive(sortedList, temp, 0, size - 1, adjustedDelay, cubeObjects);
+
+        Debug.Log("Sorting Complete");
+
+        // Invoke the callback with the sorted list
+        onComplete?.Invoke(sortedList);
+    }*/
+
+    public IEnumerator SteppedMergeSortCoroutine(List<int> list, Action<List<int>> onComplete)
+    {
+        List<int> sortedList = new List<int>(list);
+        List<GameObject> cubeObjects = new List<GameObject>();
+        cubeObjects = cubeGenerator.grabCubes();
+
+        yield return StartCoroutine(MergeSort(sortedList, 0, sortedList.Count - 1, cubeObjects));
+
+        // Invoke the callback with the sorted list
+        onComplete?.Invoke(sortedList);
+    }
+
+    IEnumerator MergeSort(List<int> list, int left, int right, List<GameObject> cubeObjects)
+    {
+        if (left < right)
+        {
+            int mid = (left + right) / 2;
+            yield return StartCoroutine(MergeSort(list, left, mid, cubeObjects));
+            yield return StartCoroutine(MergeSort(list, mid + 1, right, cubeObjects));
+            yield return StartCoroutine(Merge(list, left, mid, right, cubeObjects));
+        }
+    }
+
+    IEnumerator Merge(List<int> list, int left, int mid, int right, List<GameObject> cubeObjects)
+    {
+        int n1 = mid - left + 1;
+        int n2 = right - mid;
+
+        int[] L = new int[n1];
+        int[] R = new int[n2];
+        GameObject[] LCubes = new GameObject[n1];
+        GameObject[] RCubes = new GameObject[n2];
+
+        for (int p = 0; p < n1; ++p)
+        {
+            L[p] = list[left + p];
+            LCubes[p] = cubeObjects[left + p];
+        }
+        for (int q = 0; q < n2; ++q)
+        {
+            R[q] = list[mid + 1 + q];
+            RCubes[q] = cubeObjects[mid + 1 + q];
+        }
+
+        int k = left;
+        int i = 0, j = 0;
+
+        while (i < n1 && j < n2)
+        {
+            if (L[i] <= R[j])
+            {
+                list[k] = L[i];
+                cubeObjects[k] = LCubes[i];
+                i++;
+            }
+            else
+            {
+                list[k] = R[j];
+                cubeObjects[k] = RCubes[j];
+                j++;
+            }
+            k++;
+        }
+
+        while (i < n1)
+        {
+            list[k] = L[i];
+            cubeObjects[k] = LCubes[i];
+            i++;
+            k++;
+        }
+
+        while (j < n2)
+        {
+            list[k] = R[j];
+            cubeObjects[k] = RCubes[j];
+            j++;
+            k++;
+        }
+
+        // Move cubes accordingly
+        MoveCubesAccordingly(cubeObjects, list);
+
+        // Introduce a delay (replace with your own delay logic)
+        yield return new WaitForSeconds(0.5f);
+    }
+    void MoveCubesAccordingly(List<GameObject> cubes, List<int> sortedList)
+    {
+        // Iterate over the cubes and update their names and labels according to the sorted list
+        for (int i = 0; i < cubes.Count; i++)
+        {
+            GameObject cube = cubes[i];
+            int value = sortedList[i];
+
+            // Update cube's name and label
+            cube.name = value.ToString();
+            TextMeshProUGUI label = cube.GetComponentInChildren<TextMeshProUGUI>();
+            if (label != null)
+            {
+                label.text = value.ToString();
+            }
+            else
+            {
+                Debug.LogError("Label not found on cube: " + cube.name);
+            }
+        }
+    }
+
+    bool IsSorted(List<int> list)
+    {
+        // Check if the list is sorted in ascending order
+        for (int i = 0; i < list.Count - 1; i++)
+        {
+            if (list[i] > list[i + 1])
+            {
+                return false;
+            }
+        }
+        return true;
     }
     public void ReturnToPlayMenu()
     {

@@ -10,12 +10,21 @@ public class CubeGenerator : MonoBehaviour
     public List<int> intList = new List<int>();
     public GameObject referenceCube;
     public GameObject labelPrefab;
-    public Transform cubeGenTransform;
+    //public RectTransform cubeGenTransform;
     private bool isDragging = false;
     private Vector3 offset;
+    private RectTransform thisTransform;
 
     private Dictionary<string, Color> cubeColors = new Dictionary<string, Color>();
-
+    private void Awake()
+    {
+        //cubeGenTransform = transform.Find("CubeGen").GetComponent<RectTransform>();
+        thisTransform = transform.GetComponent<RectTransform>();
+    }
+    private void Start()
+    {
+        
+    }
     private Color GetRandomColor()
     {
         return new Color(Random.value, Random.value, Random.value);
@@ -34,10 +43,10 @@ public class CubeGenerator : MonoBehaviour
         //TODO - FIXED : Bug, not creating the correct amount of blocks according to the size of the list
 
         //make 1 cube for the size of the int list entered by the user
-        
-        float startingPosX = -7;
-        float startingPosY = -2;
-        float startingPosZ = -5;
+
+        float startingPosX = -750f;
+        float startingPosY = -75f;
+        float startingPosZ = -5f;
         for (int i = 0; i < size; i++)
         {
 
@@ -58,18 +67,18 @@ public class CubeGenerator : MonoBehaviour
                 collider = newCube.AddComponent<BoxCollider>();
                 collider.isTrigger = true;
             }
-            newCube.transform.parent = cubeGenTransform;
+            newCube.transform.parent = transform;
             newCube.tag = "CubeTag";
-            
+
             //newCube.name = "Cube" + i;
 
             //doesnt work
             //GameObject newCube = Instantiate(cube, new Vector3(i * 2, 0f, 0f), Quaternion.identity);
 
-            float cubeXPosition = (cubeGenTransform.position.x - 3) + i * 2f;
-            float cubeYPosition = cubeGenTransform.position.y + 2; //
-            float cubeZPosition = cubeGenTransform.position.z; //
-            newCube.transform.position = new Vector3(cubeXPosition, cubeYPosition, cubeZPosition);
+            float cubeXPosition = (transform.localPosition.x + startingPosX) + i * 180f;
+            float cubeYPosition = transform.localPosition.y + startingPosY; //
+            float cubeZPosition = startingPosZ; //
+            newCube.transform.localPosition = new Vector3(cubeXPosition, cubeYPosition, cubeZPosition);
             newCube.transform.localScale = new Vector3(100, 300, 100);
 
             //Label assignment
@@ -114,9 +123,9 @@ public class CubeGenerator : MonoBehaviour
         
 
         
-        float startingPosX = -7f;
-        float startingPosY = -1.7f;
-        float startingPosZ = -0.7f;
+        float startingPosX = -750f;
+        float startingPosY = -75f;
+        float startingPosZ = -5f;
 
         // instantiate cubes with random numbers under the "CubeGen" object
         for (int i = 0; i < size; i++)
@@ -147,15 +156,16 @@ public class CubeGenerator : MonoBehaviour
                 Debug.LogError("Renderer component not found on cube prefab!");
             }
 
-            newCube.transform.parent = cubeGenTransform;
+            newCube.transform.parent = transform;
 
             //newCube.transform.SetParent(cubeGenTransform);
             //newCube.transform.parent = cubeGenTransform;
             newCube.tag = "CubeTag";
-            float cubeXPosition = (cubeGenTransform.position.x - 3) + i * 2f;
-            float cubeYPosition = cubeGenTransform.position.y + 2; //
-            float cubeZPosition = cubeGenTransform.position.z; //
-            newCube.transform.position = new Vector3(cubeXPosition, cubeYPosition, cubeZPosition);
+
+            float cubeXPosition = (transform.localPosition.x + startingPosX) + i * 180f;
+            float cubeYPosition = transform.localPosition.y + startingPosY; //
+            float cubeZPosition = startingPosZ;
+            newCube.transform.localPosition = new Vector3(cubeXPosition, cubeYPosition, cubeZPosition);
 
 
             //newCube.transform.position = new Vector3(-7 + (i * 2), -1.7f, -0.7f);
@@ -195,12 +205,9 @@ public class CubeGenerator : MonoBehaviour
     public void grabandDestroyCubes()
     {
         Debug.Log("Calling grabandDestroyCubes method");
-        Transform game1Transform = transform.parent.Find("Game1");
-
-        if (game1Transform != null)
-        {
+      
             // Ensure the cubeGenTransform is found under game1Transform
-            Transform cubeGenTransform = game1Transform.Find("CubeGen");
+            Transform cubeGenTransform = transform;
 
             if (cubeGenTransform != null)
             {
@@ -245,95 +252,41 @@ public class CubeGenerator : MonoBehaviour
             {
                 Debug.LogError("Could not find CubeGen transform under Game1.");
             }
-        }
-        else
-        {
-            Debug.LogError("Could not find Game1 transform.");
-        }
+        
+        
+        
+        
+        
         //return null;
 
     }
-    public void grabandDestroyCube()
-    {
-        Debug.Log("Calling grabandDestroyCube method");
-        Transform game1Transform = transform.parent.Find("Game1");
-
-        if (game1Transform != null)
-        {
-            // Ensure the cubeGenTransform is found under game1Transform
-            Transform cubeGenTransform = game1Transform.Find("CubeGen");
-
-            if (cubeGenTransform != null)
-            {
-                List<GameObject> cubeObjects = new List<GameObject>();
-
-                // Iterate through children of "CubeGen"
-                foreach (Transform child in cubeGenTransform)
-                {
-                    if (child.CompareTag("CubeTag"))
-                    {
-                        // Check if the child has any nested objects
-                        // If so, destroy them as well
-                        foreach (Transform nestedChild in child)
-                        {
-                            Destroy(nestedChild.gameObject);
-                        }
-
-                        // Destroy the root object
-                        Destroy(child.gameObject);
-                    }
-                }
-                //return cubeObjects;
-
-
-            }
-            else
-            {
-                Debug.LogError("Could not find CubeGen transform under Game1.");
-            }
-        }
-        else
-        {
-            Debug.LogError("Could not find Game1 transform.");
-        }
-        //return null;
-
-    }
+   
     public List<GameObject> grabCubes()
     {
-        Transform game1Transform = transform.parent.Find("Game1");
+        
+        
 
-        if (game1Transform != null)
+        if (thisTransform != null)
         {
-            // Ensure the cubeGenTransform is found under game1Transform
-            Transform cubeGenTransform = game1Transform.Find("CubeGen");
+            List<GameObject> cubeObjects = new List<GameObject>();
 
-            if (cubeGenTransform != null)
+            // Iterate through children of "CubeGen"
+            foreach (Transform child in thisTransform)
             {
-                List<GameObject> cubeObjects = new List<GameObject>();
-
-                // Iterate through children of "CubeGen"
-                foreach (Transform child in cubeGenTransform)
+                // Check if the child has the specified tag
+                if (child.CompareTag("CubeTag"))
                 {
-                    // Check if the child has the specified tag
-                    if (child.CompareTag("CubeTag"))
-                    {
-                        cubeObjects.Add(child.gameObject);
+                    cubeObjects.Add(child.gameObject);
 
-                    }
                 }
-                return cubeObjects;
+            }
+            return cubeObjects;
 
-                // ... rest of the code remains the same
-            }
-            else
-            {
-                Debug.LogError("Could not find CubeGen transform under Game1.");
-            }
+            // ... rest of the code remains the same
         }
         else
         {
-            Debug.LogError("Could not find Game1 transform.");
+            Debug.LogError("Could not find CubeGen transform under Game1.");
         }
         return null;
 
@@ -364,19 +317,19 @@ public class CubeGenerator : MonoBehaviour
     }
     public List<int> grabCubeNames()
     {
-        Transform game1Transform = transform.parent.Find("Game1");
+        //Transform game1Transform = transform.parent.Find("Game1");
 
-        if (game1Transform != null)
-        {
+        //if (game1Transform != null)
+        //{
             // Ensure the cubeGenTransform is found under game1Transform
-            Transform cubeGenTransform = game1Transform.Find("CubeGen");
+            //Transform cubeGenTransform = game1Transform.Find("CubeGen");
 
-            if (cubeGenTransform != null)
+            if (transform != null)
             {
                 List<int> cubeNameValues = new List<int>();
 
                 // Iterate through children of "CubeGen"
-                foreach (Transform child in cubeGenTransform)
+                foreach (Transform child in transform)
                 {
                     if (child.CompareTag("CubeTag"))
                     {
@@ -398,16 +351,18 @@ public class CubeGenerator : MonoBehaviour
             {
                 Debug.LogError("Could not find CubeGen transform under Game1.");
             }
-        }
-        else
-        {
-            Debug.LogError("Could not find Game1 transform.");
-        }
 
+        //}
+        //else
+        //{
+        //  Debug.LogError("Could not find Game1 transform.");
+        //}
         return null;
+
+       
     }
 
-    public List<int> grabCubeText()
+    public List<int> GrabCubeText()
     {
         Transform game1Transform = transform.parent.Find("Game1");
 
