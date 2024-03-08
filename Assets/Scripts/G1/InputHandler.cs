@@ -689,7 +689,21 @@ public class InputHandler : MonoBehaviour
         }
 
     }
-    
+    public void MoveTextAboveHighlightedObjectSearch(GameObject highlightedObject, GameObject leftObject, GameObject rightObject )
+    {
+        if (highlightedObject != null && leftObject != null && rightObject != null)
+        {
+            float xCoordinate = highlightedObject.transform.localPosition.x;
+            questionLabel.text = highlightedObject.name + " > " + leftObject.name + "?" + ".\n" + highlightedObject.name + " < " + rightObject.name + "?";
+            questionLabel.transform.localPosition = new Vector3(xCoordinate, highlightedObject.transform.localPosition.y + 400f, highlightedObject.transform.localPosition.z);
+        }
+        else
+        {
+            Debug.LogError("Highlighted object or questionLabel is null.");
+        }
+
+    }
+
     public void MovePrismAboveHighlightedObject(GameObject highlightedObject)
     {
 
@@ -816,38 +830,82 @@ public class InputHandler : MonoBehaviour
     }
     IEnumerator SteppedBinarySearchCoroutine(List<GameObject> cubes, int target, Action<int> onComplete)
     {
+        prismObject.SetActive(false);
+        Game1 g1 = new Game1();
         List<int> list = cubeGenerator.grabCubeNames();
+        float adjustedDelay = delayInSeconds * delaySlider.value;
+
+
+
+        
         int left = 0;
         int right = list.Count - 1;
+        yield return new WaitForSeconds(adjustedDelay);
 
+        list = g1.BubbleSort(list);
+
+        cubeGenerator.SetCubeTextAndName(cubes, list);
+
+        foreach (GameObject cube in cubes)
+        {
+            cube.GetComponent<Renderer>().material.color = Color.white;
+        }
+
+        yield return new WaitForSeconds(adjustedDelay);
+        
         while (left <= right)
         {
             int mid = left + (right - left) / 2;
 
-            // Check if the target is found at mid
-            if (list[mid] == target)
+            // Highlight the midpoint cube 
+            HighlightCube(cubes[mid]);
+            MoveTextAboveHighlightedObjectSearch(cubes[mid], cubes[mid -1], cubes[mid +1]);
+
+
+            yield return new WaitForSeconds(adjustedDelay);
+
+            // Remove highlight from the midpoint cube 
+            RemoveHighlight(cubes[mid]);
+
+            
+
+
+            // Check if target found at mid
+            if (list[mid]== target)
             {
                 onComplete?.Invoke(mid);
                 yield break;
             }
 
-            // If target is greater, ignore left half
+            // If greater, search the right half
             if (list[mid] < target)
             {
                 left = mid + 1;
             }
-            // If target is smaller, ignore right half
+            // If smaller, search the left half
             else
             {
                 right = mid - 1;
             }
 
-            // Introduce a delay (optional)
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(adjustedDelay);
+            
         }
 
-        // If target is not found
-        onComplete?.Invoke(-1);
+        // If no finding the target
+        onComplete?.Invoke(-1); 
+    }
+    void HighlightCube(GameObject cube)
+    {
+        
+        cube.GetComponent<Renderer>().material.color = Color.yellow;
+    }
+
+    
+    void RemoveHighlight(GameObject cube)
+    {
+        
+        cube.GetComponent<Renderer>().material.color = Color.white; // or whatever the original color was
     }
     public void StartSteppedMergeSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {

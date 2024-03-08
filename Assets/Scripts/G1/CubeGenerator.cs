@@ -317,49 +317,70 @@ public class CubeGenerator : MonoBehaviour
     }
     public List<int> grabCubeNames()
     {
-        //Transform game1Transform = transform.parent.Find("Game1");
+        
 
-        //if (game1Transform != null)
-        //{
-            // Ensure the cubeGenTransform is found under game1Transform
-            //Transform cubeGenTransform = game1Transform.Find("CubeGen");
+        if (transform != null)
+        {
+            List<int> cubeNameValues = new List<int>();
 
-            if (transform != null)
+            // Iterate through children of "CubeGen"
+            foreach (Transform child in transform)
             {
-                List<int> cubeNameValues = new List<int>();
-
-                // Iterate through children of "CubeGen"
-                foreach (Transform child in transform)
+                if (child.CompareTag("CubeTag"))
                 {
-                    if (child.CompareTag("CubeTag"))
+                    // Parse the cube name to an integer
+                    if (int.TryParse(child.gameObject.name, out int cubeValue))
                     {
-                        // Parse the cube name to an integer
-                        if (int.TryParse(child.gameObject.name, out int cubeValue))
-                        {
-                            cubeNameValues.Add(cubeValue);
-                        }
-                        else
-                        {
-                            Debug.LogError("Failed to parse cube name to int: " + child.gameObject.name);
-                        }
+                        cubeNameValues.Add(cubeValue);
+                    }
+                    else
+                    {
+                        Debug.LogError("Failed to parse cube name to int: " + child.gameObject.name);
                     }
                 }
-
-                return cubeNameValues;
-            }
-            else
-            {
-                Debug.LogError("Could not find CubeGen transform under Game1.");
             }
 
-        //}
-        //else
-        //{
-        //  Debug.LogError("Could not find Game1 transform.");
-        //}
+            return cubeNameValues;
+        }
+        else
+        {
+            Debug.LogError("Could not find CubeGen transform under Game1.");
+        }
+
         return null;
 
        
+    }
+    public void SetCubeTextAndName(List<GameObject> cubes, List<int> names)
+    {
+        if (cubes.Count != names.Count)
+        {
+            Debug.LogError("Number of cubes does not match number of names.");
+            return;
+        }
+
+        // set their names and label texts
+        for (int i = 0; i < cubes.Count; i++)
+        {
+            GameObject cube = cubes[i];
+            int name = names[i];
+
+            // Set the name of the cube
+            cube.name = name.ToString();
+
+            // TextMeshProUGUI component is directly on the child object
+            TextMeshProUGUI textMeshPro = cube.GetComponentInChildren<TextMeshProUGUI>();
+
+            if (textMeshPro != null)
+            {
+                
+                textMeshPro.text = name.ToString();
+            }
+            else
+            {
+                Debug.LogError("TextMeshProUGUI component not found on the cube.");
+            }
+        }
     }
 
     public List<int> GrabCubeText()
