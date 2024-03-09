@@ -59,8 +59,12 @@ while ($row = mysqli_fetch_assoc($scorescheck_game2)) {
     echo $row["pointsPerSession"] . "," . $row["sessionQsAnswered"] . "," . $row["sessionSuccessRate"] . "," . $row["attempts"] . "," . $row["timestamp"] . "\n";
 }
 
-// Select data from game3_scores which doesn't have anything in it yet
+// Select data from game3_scores which doesn
 $scorescheckquery_game3 = "SELECT pointsPerSession, sessionQsAnswered, sessionSuccessRate, attempts, timestamp FROM game3_scores WHERE userid='" . $userid . "'";
-//$scorescheck_game3 = mysqli_query($conn, $scorescheckquery_game3) or die("Error retrieving data from game3_scores");
+$scorescheck_game3 = mysqli_query($conn, $scorescheckquery_game3) or die("Error retrieving data from game3_scores");
 
+while ($row = mysqli_fetch_assoc($scorescheck_game3)) {
+    // Echo each row of data
+    echo $row["pointsPerSession"] . "," . $row["sessionQsAnswered"] . "," . $row["sessionSuccessRate"] . "," . $row["attempts"] . "," . $row["timestamp"] . "\n";
+}
 ?>
