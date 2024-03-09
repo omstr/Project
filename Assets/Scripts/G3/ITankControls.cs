@@ -2,8 +2,14 @@
 
 namespace Assets.Scripts.G3
 {
+
     public interface ITankControls
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        
         public IEnumerator Run();
         public void MoveForward();
         public void MoveBackward();

@@ -1,5 +1,7 @@
 using Assets.Scripts.G3;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Grid : MonoBehaviour
 {
@@ -62,6 +64,9 @@ public class Grid : MonoBehaviour
         {
             checkpoints--;
             item.ActiveObject.SetActive(false);
+            G3Script.sessionQsAnswered += 1;
+            G3Script.totalScore += 1;
+            G3Script.questionsAnsweredCorrectly += 1;
             Debug.Log("Checkpoint Hit! " + checkpoints + " Left!");
         } 
         else if (item.type == GridItem.ItemType.Finish)
@@ -69,15 +74,20 @@ public class Grid : MonoBehaviour
             if (checkpoints == 0 && targets == 0)
             {
                 item.ActiveObject.SetActive(false);
-                Debug.Log("Game Won!");
+                EditorUtility.DisplayDialog("Game Won!", "Game Won!", "OK");
+                G3Script.sessionQsAnswered += 1;
+                G3Script.totalScore += 1;
+                G3Script.questionsAnsweredCorrectly += 1;
                 EndGame(true);
             }
             else
             {
                 item.ActiveObject.SetActive(false);
-                Debug.Log("Game Lost! " + targets + " Targets And " + checkpoints + " Checkpoints Are Left!");
+
+                EditorUtility.DisplayDialog("Game Lost", "Game Lost! " + targets + " Targets And " + checkpoints + " Checkpoints Are Left!", "OK");
                 EndGame(false);
             }
+
         }
     }
 
@@ -105,6 +115,8 @@ public class Grid : MonoBehaviour
 
         if (won)
         {
+
+            //SceneManager.LoadScene() Load the scene after this one, make it work dynamically
             // Code to Move to Next Level!
         }
     }

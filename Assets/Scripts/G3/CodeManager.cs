@@ -165,17 +165,18 @@ public class CodeManager : MonoBehaviour
         var provider = new CSharpCodeProvider();
         var param = new CompilerParameters();
 
-        // Add ALL of the assembly references
+        // Add specific assembly references
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
-            // Stops some error, idk why.
-            if (assembly.FullName.Contains("mscorlib") || assembly.FullName.Contains("Microsoft.GeneratedCode")) continue;
-            //Debug.Log(assembly.FullName);
-
-            param.ReferencedAssemblies.Add(assembly.Location);
+            // could optionally add 'assembly.FullName.Contains("System")' below to include common types like colletions
+            // But investigate everything added because of potential mallicious classes. Otherwise this works well
+            if (assembly.FullName.Contains("UnityEngine") || assembly.FullName.Contains("Assembly-CSharp") || assembly.FullName.Contains("netstandard"))
+            {
+                param.ReferencedAssemblies.Add(assembly.Location);
+            }
         }
 
-        // Or, uncomment just the assemblies you need...
+        
 
         // System namespace for common types like collections.
         //param.ReferencedAssemblies.Add("System.dll");
@@ -183,7 +184,7 @@ public class CodeManager : MonoBehaviour
         // This contains methods from the Unity namespaces:
         //param.ReferencedAssemblies.Add("UnityEngines.dll");
 
-        // This assembly contains runtime C# code from your Assets folders:
+        // This assembly contains runtime C# code from Assets folders:
         // (If  using editor scripts, they may be in another assembly)
         //param.ReferencedAssemblies.Add("CSharp.dll");
 

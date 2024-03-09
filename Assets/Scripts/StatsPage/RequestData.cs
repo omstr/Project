@@ -47,6 +47,7 @@ public class RequestData : MonoBehaviour
     }
     public List<string[]> game1ScoresData = new List<string[]>();
     public List<string[]> game2ScoresData = new List<string[]>();
+    public List<string[]> game3ScoresData = new List<string[]>();
     public void GetGameData()
     {
         StartCoroutine(RequestMethod());
@@ -57,6 +58,7 @@ public class RequestData : MonoBehaviour
         form.AddField("username", DBManager.username);
         form.AddField("game1_scores", "game1_scores"); // Add field for game1_scores
         form.AddField("game2_scores", "game2_scores"); // Add field for game2_scores
+        form.AddField("game3_scores", "game3_scores"); // Add field for game2_scores
         ///TODO: Replace WWW with unitywebrequest when it all works
         //Request object
 
@@ -96,7 +98,10 @@ public class RequestData : MonoBehaviour
                         case "Game2":
                             currentTableData = game2ScoresData;
                             break;
-                            // Add more cases for additional tables if needed
+                        case "Game3":
+                            currentTableData = game3ScoresData;
+                            break;
+                            // Add more cases for additional tables 
                     }
                 }
                 else
@@ -113,6 +118,7 @@ public class RequestData : MonoBehaviour
             // Now you can access game1ScoresData and game2ScoresData lists to get the scores
             Debug.Log("Game 1 Scores Count: " + game1ScoresData.Count);
             Debug.Log("Game 2 Scores Count: " + game2ScoresData.Count);
+            Debug.Log("Game 3 Scores Count: " + game3ScoresData.Count);
 
             SceneManager.LoadScene("StatsMenu");
 
@@ -126,6 +132,11 @@ public class RequestData : MonoBehaviour
     public List<string[]> getGame2ScoresData()
     {
         return game2ScoresData;
+
+    }
+    public List<string[]> getGame3ScoresData()
+    {
+        return game3ScoresData;
 
     }
 }

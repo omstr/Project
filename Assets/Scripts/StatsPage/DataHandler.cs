@@ -30,6 +30,7 @@ public class DataHandler : MonoBehaviour
     
     public List<string[]> game1ScoresData;
     public List<string[]> game2ScoresData;
+    public List<string[]> game3ScoresData;
 
     // Separate variables to store data for each field
     public static List<int> game1PointsPerSession = new List<int>();
@@ -85,18 +86,19 @@ public class DataHandler : MonoBehaviour
         // Once the RequestMethod coroutine finishes, access the data
         List<string[]> game1Data = rD.getGame1ScoresData();
         List<string[]> game2Data = rD.getGame2ScoresData();
+        List<string[]> game3Data = rD.getGame3ScoresData();
 
         // Process the retrieved data as needed
-        if (game1Data != null && game2Data != null)
+        if (game1Data != null && game2Data != null && game3Data != null)
         {
-            ParseGameData(game1Data, game2Data);
+            ParseGameData(game1Data, game2Data,game3Data);
         }
         else
         {
             Debug.LogError("Data Fetched is null or something");
         }
     }
-    public void ParseGameData(List<string[]> game1ScoresData, List<string[]> game2ScoresData)
+    public void ParseGameData(List<string[]> game1ScoresData, List<string[]> game2ScoresData, List<string[]> game3ScoresData)
     {
         
         foreach (string[] data in game1ScoresData)
@@ -126,6 +128,20 @@ public class DataHandler : MonoBehaviour
 
                 superSuccessionSuccessRate.Add(new SuccessRateData(float.Parse(data[2]), "Game2"));
                 superTimestamps.Add(new TimestampData(data[4], "Game2"));
+            }
+        }
+        foreach (string[] data in game3ScoresData)
+        {
+            if (data != null && data.Length >= 5) // Check if data array is not null and has at least 5 elements
+            {
+                game3PointsPerSession.Add(int.Parse(data[0]));
+                game3SessionQsAnswered.Add(int.Parse(data[1]));
+                game3SessionSuccessRate.Add(float.Parse(data[2]));
+                game3Attempts.Add(int.Parse(data[3]));
+                game3Timestamps.Add(data[4]);
+
+                superSuccessionSuccessRate.Add(new SuccessRateData(float.Parse(data[2]), "Game3"));
+                superTimestamps.Add(new TimestampData(data[4], "Game3"));
             }
         }
     }
