@@ -16,6 +16,7 @@ public class InputHandler : MonoBehaviour
     public TMP_InputField numberTMPInput;
     public TextMeshProUGUI sortedOutput;
     public TextMeshProUGUI questionBox;
+    public TextMeshProUGUI scoreLabel;
     public Button enterButton;
     public InputField answerBox;
     public GameObject questionObject;
@@ -23,7 +24,7 @@ public class InputHandler : MonoBehaviour
     private string inputString;
     private float delayInSeconds = 1f;
     public CubeGenerator cubeGenerator;
-    public GameObject prismObject;
+    private GameObject prismObject;
     public Slider delaySlider;
     public List<int> intList = new List<int>();
     public List<int> sortedList = new List<int>();
@@ -31,6 +32,8 @@ public class InputHandler : MonoBehaviour
     public Image crossImage;
     public int maxNumbers = 9;
     public TextMeshProUGUI questionLabel;
+
+    private RectTransform CubeGenTransform;
 
     private bool isSorting = false;
    
@@ -44,7 +47,9 @@ public class InputHandler : MonoBehaviour
     private void Start()
     {
         cubeGenerator = GameObject.FindObjectOfType<CubeGenerator>();
+        prismObject = transform.Find("Prism").GetComponent<GameObject>();
 
+        CubeGenTransform = transform.Find("CubeGen").GetComponent<RectTransform>();
         textInputField.onEndEdit.AddListener(ValidateInput);
 
         delaySlider.minValue = 0.1f;
@@ -403,19 +408,24 @@ public class InputHandler : MonoBehaviour
     /// <returns></returns>
     public IEnumerator TeachSteppedBubbleSortCoroutine(List<int> list, Action<List<int>> onComplete)
     {
+        DisableCubeClickOnAllCubes();
+        crossImage.gameObject.SetActive(false);
+        tickImage.gameObject.SetActive(false);
         Game1 game1 = new Game1();
         List<int> sortedList = new List<int>(list);
         List<int> prevPassList = new List<int>();
         List<GameObject> cubeObjects = new List<GameObject>();
         int size = sortedList.Count;
         bool swapped;
-        prismObject = GameObject.Find("Prism");
+        
+        prismObject = transform.Find("Prism").GetComponent<GameObject>();
         
         Game1.attempts = 0;
         cubeObjects = cubeGenerator.grabCubes(); // NullReferenceException
         
         List<int> cubeNames = new List<int>();
-        prismObject.SetActive(false);
+        
+        
         //MovePrismAboveHighlightedObject(cubeObjects[0]);
         do
         {
@@ -456,13 +466,15 @@ public class InputHandler : MonoBehaviour
 
                         //SQL handling
                         game1.increaseBubbleScore();
+                        scoreLabel.text = "Points: " + Game1.totalScore;
+
                         
                         Game1.questionsAnsweredCorrectly += 1;
                         swapped = true;
                     }
                     else
                     {
-                        SpawnImageOverCube(cubeObjects[i -1 ], crossImage);
+                        SpawnImageOverCube(cubeObjects[i], crossImage);
                         Debug.Log("The list of the cube names" + cubeNames);
                         Debug.Log("The sorted list from the bubble sort" + sortedList);
                         //TODO: Incorrect Image:  fix incorrect image
@@ -472,9 +484,9 @@ public class InputHandler : MonoBehaviour
                         Debug.Log("Sorted List: " + sortedList);
                         Debug.Log("PrevPass List: " + prevPassList);
                         sortedList = prevPassList;
-
+                        scoreLabel.text = "Points: " + Game1.totalScore;
                         //TODO: if incorrect, don't actually swap the cubes, just place the incorrect image and keep the list the same
-                        
+
 
                         //SQL handling
                         game1.increaseAttempts(); // in this game, i should implement for each attempt, you get minus score, unless your score is already 0
@@ -634,7 +646,45 @@ public class InputHandler : MonoBehaviour
             Debug.Log("User has not completed the swap");
         }
     }
+    private IEnumerator WaitForUserClick(List<GameObject> cubeObjects)
+    {
+        bool userClicked = false;
 
+        // Get the initial colors of the cubes
+        List<Color> initialColors = new List<Color>();
+        foreach (var cube in cubeObjects)
+        {
+            // Assuming the cubes have a component that changes their color
+            Renderer renderer = cube.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                initialColors.Add(renderer.material.color);
+            }
+        }
+
+        // Continue checking for changes until a cube is clicked
+        while (!userClicked)
+        {
+            // Wait for the next frame to avoid performance issues
+            yield return null;
+
+            // Check if any cube's color has changed
+            for (int i = 0; i < cubeObjects.Count; i++)
+            {
+                Renderer renderer = cubeObjects[i].GetComponent<Renderer>();
+                if (renderer != null && renderer.material.color != initialColors[i])
+                {
+                    userClicked = true;
+                    break;
+                }
+            }
+        }
+
+        if (userClicked)
+        {
+            Debug.Log("User has clicked a cube");
+        }
+    }
     public void SortButton()
     {
         intList = cubeGenerator.grabCubeNames();
@@ -689,16 +739,17 @@ public class InputHandler : MonoBehaviour
         }
 
     }
-    public void MoveTextAboveHighlightedObjectSearch(GameObject highlightedObject, GameObject leftObject, GameObject rightObject )
+    public void MoveTextAboveHighlightedObjectSearch(GameObject highlightedObject, int target )
     {
-        if (highlightedObject != null && leftObject != null && rightObject != null)
+        if (highlightedObject != null)
         {
             float xCoordinate = highlightedObject.transform.localPosition.x;
-            questionLabel.text = highlightedObject.name + " > " + leftObject.name + "?" + ".\n" + highlightedObject.name + " < " + rightObject.name + "?";
-            questionLabel.transform.localPosition = new Vector3(xCoordinate, highlightedObject.transform.localPosition.y + 400f, highlightedObject.transform.localPosition.z);
+            questionLabel.text = highlightedObject.name + " > " + target + "?";
+            questionLabel.transform.localPosition = new Vector3(xCoordinate + 20, highlightedObject.transform.localPosition.y + 300f, highlightedObject.transform.localPosition.z);
         }
         else
         {
+            questionLabel.gameObject.SetActive(false);
             Debug.LogError("Highlighted object or questionLabel is null.");
         }
 
@@ -747,7 +798,7 @@ public class InputHandler : MonoBehaviour
             }
 
             // reset temp score
-            Game1.tempScore = 0;
+            Game1.totalScore = 0;
 
         }));
 
@@ -828,9 +879,52 @@ public class InputHandler : MonoBehaviour
             }
         }));
     }
+    public void TeachSearchBinarySearchButton()
+    {
+        
+        List<GameObject> cubes = cubeGenerator.grabCubes();
+        GameObject randomCube;
+        
+            // Get a random index within the range of the list
+            int randomIndex = Random.Range(0, cubes.Count);
+
+            
+            randomCube = cubes[randomIndex];
+
+            int target = int.Parse(randomCube.name);
+
+        output.text = "Find: " + target;
+        
+        
+        
+
+        StartCoroutine(TeachSteppedBinarySearchCoroutine(cubes, target, (foundIndex) =>
+        {
+            output.text = "Complete";
+            if (foundIndex != -1)
+            {
+                output.text = $"Target {target} found at index: {foundIndex}";
+            }
+            else
+            {
+                output.text = $"Target {target} not found in the list";
+            }
+            
+            Game1.scoreArray.Add(Game1.totalScore);
+            Debug.Log("Score Array size: " + Game1.scoreArray.Count);
+            foreach (int num in Game1.scoreArray)
+            {
+                Debug.Log("Score array " + num);
+            }
+
+            // reset temp score
+            Game1.totalScore = 0;
+        }));
+    }
     IEnumerator SteppedBinarySearchCoroutine(List<GameObject> cubes, int target, Action<int> onComplete)
     {
-        prismObject.SetActive(false);
+        prismObject = transform.Find("Prism").GetComponent<GameObject>();
+        
         Game1 g1 = new Game1();
         List<int> list = cubeGenerator.grabCubeNames();
         float adjustedDelay = delayInSeconds * delaySlider.value;
@@ -840,6 +934,9 @@ public class InputHandler : MonoBehaviour
         
         int left = 0;
         int right = list.Count - 1;
+        questionLabel.text = "sorting...";
+        questionLabel.gameObject.SetActive(true);
+        //prismObject.gameObject.SetActive(false);
         yield return new WaitForSeconds(adjustedDelay);
 
         list = g1.BubbleSort(list);
@@ -859,7 +956,7 @@ public class InputHandler : MonoBehaviour
 
             // Highlight the midpoint cube 
             HighlightCube(cubes[mid]);
-            MoveTextAboveHighlightedObjectSearch(cubes[mid], cubes[mid -1], cubes[mid +1]);
+            MoveTextAboveHighlightedObjectSearch(cubes[mid], target);
 
 
             yield return new WaitForSeconds(adjustedDelay);
@@ -880,11 +977,20 @@ public class InputHandler : MonoBehaviour
             // If greater, search the right half
             if (list[mid] < target)
             {
+                // Change the color of cubes before mid to black
+                for (int i = 0; i < mid; i++)
+                {
+                    ChangeCubeColorToBlack(cubes[i]);
+                }
                 left = mid + 1;
             }
             // If smaller, search the left half
             else
             {
+                for (int i = mid + 1; i <= right; i++)
+                {
+                    ChangeCubeColorToBlack(cubes[i]);
+                }
                 right = mid - 1;
             }
 
@@ -894,6 +1000,207 @@ public class InputHandler : MonoBehaviour
 
         // If no finding the target
         onComplete?.Invoke(-1); 
+    }
+    IEnumerator TeachSteppedBinarySearchCoroutine(List<GameObject> cubes, int target, Action<int> onComplete)
+    {
+        EnableCubeClickOnAllCubes();
+        crossImage.gameObject.SetActive(false);
+        tickImage.gameObject.SetActive(false);
+        prismObject = transform.Find("Prism").GetComponent<GameObject>();
+       
+        Game1 g1 = new Game1();
+        List<int> list = cubeGenerator.grabCubeNames();
+        float adjustedDelay = delayInSeconds * delaySlider.value;
+
+
+
+
+        int left = 0;
+        int right = list.Count - 1;
+        questionLabel.text = "sorted la";
+        questionLabel.gameObject.SetActive(true);
+
+        //prismObject.SetActive(false);
+        list = g1.BubbleSort(list);
+
+        cubeGenerator.SetCubeTextAndName(cubes, list);
+
+        foreach (GameObject cube in cubes)
+        {
+            cube.GetComponent<Renderer>().material.color = Color.white;
+        }
+
+        //wait for a colour to change 
+
+
+        //when colour is selected, check if it was the correct mid
+        
+
+        while (left <= right)
+        {
+            int mid = left + (right - left) / 2;
+
+            // Highlight the midpoint cube 
+            //HighlightCube(cubes[mid]);
+            //MoveTextAboveHighlightedObjectSearch(cubes[mid], target);
+            Debug.Log("reached before");
+            yield return StartCoroutine(WaitForUserClick(cubes));
+            Debug.Log("reached after");
+
+            List<GameObject> newCubes = cubeGenerator.grabCubes();
+
+            // Remove highlight from the midpoint cube 
+            //RemoveHighlight(cubes[mid]);
+            GameObject clickedCube = GetClickedCube(newCubes);
+
+            if(int.Parse(clickedCube.name) == list[mid] && int.Parse(clickedCube.name) == target)
+            {
+                Game1.totalScore += 1;
+                Game1.questionsAnsweredCorrectly += 1;
+                Game1.sessionQsAnswered += 1;
+                SpawnImageOverCube(clickedCube, tickImage);
+                crossImage.gameObject.SetActive(false);
+                tickImage.gameObject.SetActive(true);
+                onComplete?.Invoke(mid);
+                yield break;
+            }
+            else if (int.Parse(clickedCube.name) == list[mid])
+            {
+                
+                SpawnImageOverCube(clickedCube, tickImage);
+                crossImage.gameObject.SetActive(false);
+                tickImage.gameObject.SetActive(true);
+                Game1.totalScore += 1;
+                Game1.questionsAnsweredCorrectly += 1;
+                Game1.sessionQsAnswered += 1;
+                //ChangeAllCubeColorToWhite(cubes);
+                
+                // If greater, search the right half
+                if (list[mid] < target)
+                {
+                    // Change the color of cubes before mid to black
+                    for (int i = 0; i < mid; i++)
+                    {
+                        ChangeCubeColorToBlack(cubes[i]);
+                    }
+                    left = mid + 1;
+                }
+                // If smaller, search the left half
+                else
+                {
+                    for (int i = mid + 1; i <= right; i++)
+                    {
+                        ChangeCubeColorToBlack(cubes[i]);
+                    }
+                    right = mid - 1;
+                }
+                yield return new WaitForSeconds(adjustedDelay);
+                ChangeCubeColorToWhite(clickedCube);
+            }
+            else
+            {
+                tickImage.gameObject.SetActive(false);
+                crossImage.gameObject.SetActive(true);
+                SpawnImageOverCube(clickedCube, crossImage);
+                Game1.sessionQsAnswered += 1;
+                yield return new WaitForSeconds(adjustedDelay);
+                ChangeCubeColorToWhite(clickedCube);
+            }
+
+
+
+            // Check if target found at mid
+            //if (list[mid] == target)
+            //{
+            //    onComplete?.Invoke(mid);
+            //    yield break;
+            //}
+
+            
+
+            yield return new WaitForSeconds(adjustedDelay);
+
+        }
+        
+        DisableCubeClickOnAllCubes();
+        // If no finding the target
+        onComplete?.Invoke(-1);
+    }
+    GameObject GetClickedCube(List<GameObject> newCubes)
+    {
+        foreach (GameObject cube in newCubes)
+        {
+            Renderer renderer = cube.GetComponent<Renderer>();
+            if (renderer != null && renderer.material.color == Color.yellow)
+            {
+                return cube;
+            }
+        }
+        return null;
+    }
+    void EnableCubeClickOnAllCubes()
+    {
+        CubeClick[] cubeClicks = CubeGenTransform.GetComponentsInChildren<CubeClick>();
+        foreach (var cubeClick in cubeClicks)
+        {
+            cubeClick.enabled = true;
+        }
+    }
+    void DisableCubeClickOnAllCubes()
+    {
+        CubeClick[] cubeClicks = CubeGenTransform.GetComponentsInChildren<CubeClick>();
+        foreach (var cubeClick in cubeClicks)
+        {
+            cubeClick.enabled = false;
+        }
+    }
+    void ChangeAllCubeColorToWhite(List<GameObject> cubes)
+    {
+        foreach (var cube in cubes)
+        {
+            Renderer cubeRenderer = cube.GetComponent<Renderer>();
+
+            // Check if the cube has a renderer component
+            if (cubeRenderer != null)
+            {
+                // Change the color of the cube to black
+                cubeRenderer.material.color = Color.white;
+            }
+            else
+            {
+                Debug.LogError("Cube does not have a Renderer component.");
+            }
+        }
+    }
+    void ChangeCubeColorToWhite(GameObject cube)
+    {
+        Renderer cubeRenderer = cube.GetComponent<Renderer>();
+
+        // Check if the cube has a renderer component
+        if (cubeRenderer != null)
+        {
+            // Change the color of the cube to black
+            cubeRenderer.material.color = Color.white;
+        }
+        else
+        {
+            Debug.LogError("Cube does not have a Renderer component.");
+        }
+    }
+    void ChangeCubeColorToBlack(GameObject cube)
+    {
+        Renderer cubeRenderer = cube.GetComponent<Renderer>();
+
+        // Check if the cube has a renderer component
+        if (cubeRenderer != null)
+        {
+            // Change the color of the cube to black
+            cubeRenderer.material.color = Color.black;
+        }
+        else
+        {
+            Debug.LogError("Cube does not have a Renderer component.");
+        }
     }
     void HighlightCube(GameObject cube)
     {

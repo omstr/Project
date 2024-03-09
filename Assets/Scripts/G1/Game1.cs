@@ -164,16 +164,18 @@ public class Game1 : MonoBehaviour
 }
     public void increaseBubbleScore()
     {
-        if (scoreDisplay != null)
-        {
-            totalScore += 1;
-            scoreDisplay.text = "Points: " + tempScore;
-        }
-        else
-        {
-            totalScore += 1;
-            Debug.LogError("scoreDisplay is null!");
-        }
+        
+        totalScore += 1;
+        //if (scoreDisplay != null)
+        //{
+            
+        //    scoreDisplay.text = "Points: " + tempScore;
+        //}
+        //else
+        //{
+            
+        //    Debug.LogError("scoreDisplay is null!");
+        //}
 
         // Maybe: have to have a total score variable - This will just be for the user? 
         //have to have a per-game score variable that gets reset on teach completion

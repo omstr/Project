@@ -80,6 +80,7 @@ public class CubeMovement : MonoBehaviour
             Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f);
             Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
             transform.localPosition = curPosition;
+            
         }
     }
 

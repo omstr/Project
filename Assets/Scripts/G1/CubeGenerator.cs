@@ -53,6 +53,8 @@ public class CubeGenerator : MonoBehaviour
             
             GameObject newCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             newCube.AddComponent<CubeMovement>();
+            newCube.AddComponent<CubeClick>();
+            newCube.GetComponent<CubeClick>().enabled = false;
             Collider collider = newCube.GetComponent<Collider>();
 
             // Check if a collider is present
@@ -132,6 +134,8 @@ public class CubeGenerator : MonoBehaviour
         {
             GameObject newCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             newCube.AddComponent<CubeMovement>();
+            newCube.AddComponent<CubeClick>();
+            newCube.GetComponent<CubeClick>().enabled = false;
             Collider collider = newCube.GetComponent<Collider>();
 
             // Check if a collider is present
@@ -184,6 +188,7 @@ public class CubeGenerator : MonoBehaviour
                 textMeshPro.enabled = true;
                 textMeshPro.text = randomNumbers[i].ToString();
                 textMeshPro.fontSize = 1;
+                
                 textMeshPro.alignment = TextAlignmentOptions.Center;
 
                 newCube.name = randomNumbers[i].ToString();

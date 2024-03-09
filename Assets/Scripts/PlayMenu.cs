@@ -38,6 +38,12 @@ public class PlayMenu : MonoBehaviour
         // i.e 1 session is however long theyre in each respective game.
         
     }
+    public void Game3()
+    {
+        StartCoroutine(LoadGame3());
+        
+
+    }
     IEnumerator LoadGame1()
     {
         //SQL handling - Resetting sessionQs answered each time user launches Game1 more than once in an open program.
@@ -69,6 +75,23 @@ public class PlayMenu : MonoBehaviour
         
         yield return new WaitForSeconds(1); 
        
+        // Deactivate the loading icon when loading is complete
+        loadingIcon.SetActive(false);
+    }
+    IEnumerator LoadGame3()
+    {
+        // Activate the loading icon
+        //loadingIcon.gameObject.transform.position = new Vector3(180, 310, 0);
+        loadingIcon.gameObject.transform.localPosition = new Vector3(510, 310, 0);
+        loadingIcon.SetActive(true);
+        G3Script game3 = new G3Script();
+        //Game1.sessionQsAnswered = 0;
+        game3.resetScores();
+
+        SceneManager.LoadScene("Game3");
+
+        yield return new WaitForSeconds(1);
+
         // Deactivate the loading icon when loading is complete
         loadingIcon.SetActive(false);
     }
