@@ -9,6 +9,12 @@ using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Events;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using System.IO;
+using Microsoft.CodeAnalysis.Emit;
+using System.Linq;
+using UnityEditor;
 
 public class CodeManager : MonoBehaviour
 {
@@ -157,59 +163,63 @@ public class CodeManager : MonoBehaviour
             errorText.SetActive(true);
         }
     }
-
     public static Assembly Compile(string source)
     {
-        // Replace this Compiler.CSharpCodeProvider wth aeroson's version
-        // if  targeting non-Windows platforms:
-        var provider = new CSharpCodeProvider();
-        var param = new CompilerParameters();
+        SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(source);
+        var netStandardPath = @"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\6.0.26\netstandard.dll";
+        // Add necessary references
+        var references = new List<MetadataReference>()
+        {
+        MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
+        // Add references to Unity assemblies
 
-        // Add specific assembly references
+        // Add reference to netstandard assembly
+        // Add more references as needed
+        };
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
-            // could optionally add 'assembly.FullName.Contains("System")' below to include common types like colletions
-            // But investigate everything added because of potential mallicious classes. Otherwise this works well
-            if (assembly.FullName.Contains("UnityEngine") || assembly.FullName.Contains("Assembly-CSharp") || assembly.FullName.Contains("netstandard"))
+            // You could optionally add 'assembly.FullName.Contains("System")' below to include common types like colletions!
+            // But I would investigate everything added because of potential mallicious classes. Otherwise this works well!
+            if (assembly.FullName.Contains("UnityEngine,") ||
+                assembly.FullName.Contains("Assembly-CSharp,") ||
+                assembly.FullName.Contains("UnityEngine.CoreModule,") ||
+                assembly.FullName.Contains("netstandard"))
+
             {
-                param.ReferencedAssemblies.Add(assembly.Location);
+                Debug.Log(assembly.FullName + " " + assembly.Location);
+                references.Add(MetadataReference.CreateFromFile(assembly.Location));
             }
         }
 
-        
+        CSharpCompilation compilation = CSharpCompilation.Create(
+            "RuntimeCompiled",
+            syntaxTrees: new[] { syntaxTree },
+            references: references.ToArray(),
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)); ;
 
-        // System namespace for common types like collections.
-        //param.ReferencedAssemblies.Add("System.dll");
-
-        // This contains methods from the Unity namespaces:
-        //param.ReferencedAssemblies.Add("UnityEngines.dll");
-
-        // This assembly contains runtime C# code from Assets folders:
-        // (If  using editor scripts, they may be in another assembly)
-        //param.ReferencedAssemblies.Add("CSharp.dll");
-
-
-        // Generate a dll in memory
-        param.GenerateExecutable = false;
-        param.GenerateInMemory = true;
-
-        // Compile the source
-        var result = provider.CompileAssemblyFromSource(param, source);
-
-        if (result.Errors.Count > 0)
+        using (MemoryStream ms = new MemoryStream())
         {
-            var msg = new StringBuilder();
-            foreach (CompilerError error in result.Errors)
-            {
-                msg.AppendFormat("Error ({0}): {1}\n",
-                    error.ErrorNumber, error.ErrorText);
-            }
-            throw new Exception(msg.ToString());
-        }
+            EmitResult result = compilation.Emit(ms);
 
-        // Return the assembly
-        return result.CompiledAssembly;
+            if (!result.Success)
+            {
+                var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
+                var msg = new StringBuilder();
+                foreach (var diagnostic in failures)
+                {
+                    msg.AppendFormat("Error ({0}): {1}\n", diagnostic.Id, diagnostic.GetMessage());
+                }
+                throw new Exception(msg.ToString());
+            }
+            else
+            {
+                ms.Seek(0, SeekOrigin.Begin);
+                return Assembly.Load(ms.ToArray());
+            }
+        }
     }
+    
 
     public void Stopped()
     {
