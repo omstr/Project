@@ -100,8 +100,11 @@ public class Grid : MonoBehaviour
                 item.ActiveObject.SetActive(false);
                 //dialogManager.ShowDialog("Game Lost!");
                 //EditorUtility.DisplayDialog("Game Lost", "Game Lost! " + targets + " Targets And " + checkpoints + " Checkpoints Are Left!", "OK");
-                Debug.Log("Game Lost! ");
-                EndGame(false);
+                Debug.Log("Game Semi-Lost! ");
+                G3Script.sessionQsAnswered += 1;
+                G3Script.totalScore += 1;
+                G3Script.questionsAnsweredCorrectly += 1;
+                EndGame(true);
             }
 
         }
@@ -136,9 +139,11 @@ public class Grid : MonoBehaviour
             {
                 SceneManager.LoadScene("G3L2");
             }
-            else
+            else if (currentSceneName.StartsWith("G3L"))  // Check if the scene name starts with "G3L"
             {
                 int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+
+                // Increment the scene index to switch to the next level (e.g., from "G3L2" to "G3L3")
                 SceneManager.LoadScene(currentSceneIndex + 1);
             }
             //SceneManager.LoadScene() Load the scene after this one, make it work dynamically

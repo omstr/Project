@@ -97,6 +97,7 @@ public class CodeManager : MonoBehaviour
         if (running) return;
 
         grid.ResetGrid();
+        
 
         // TODO: May need some sort of validation to prevent malicious stuff yk. Can add more banned keywords if they are malicious!
         string code = codeInput.text;
@@ -154,7 +155,8 @@ public class CodeManager : MonoBehaviour
                       );
 
             // We ask the compiled method to add its component to this.gameObject
-            addedControls = (ITankControls)del.Invoke(tankobj);
+            del.Invoke(tankobj);
+            addedControls = (ITankControls)tankobj.GetComponent(assembly.GetType("RuntimeCompiled"));
             compiled = true;
         } 
         catch (Exception e)
@@ -193,7 +195,7 @@ public class CodeManager : MonoBehaviour
         }
 
         CSharpCompilation compilation = CSharpCompilation.Create(
-            "RuntimeCompiled",
+            Path.GetRandomFileName(),
             syntaxTrees: new[] { syntaxTree },
             references: references.ToArray(),
             options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)); ;
