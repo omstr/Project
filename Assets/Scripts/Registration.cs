@@ -15,22 +15,28 @@ public class Registration : MonoBehaviour
     public TMP_InputField usernameInput;
     public Button enterButton;
     private string registeredUsername;
-   
+
+    private DialogManager dialogManager;
+    private void Awake()
+    {
+        dialogManager = transform.Find("DialogManager").GetComponent<DialogManager>();
+    }
     public void CallRegister()
     {
         StartCoroutine(Register());
     }
     IEnumerator Register()
     {
-
+        string encodedUsername = WWW.EscapeURL(usernameInput.text);
         WWWForm form = new WWWForm();
-        form.AddField("username", usernameInput.text);
-        
+        form.AddField("username", encodedUsername);
+
         ///TODO: Replace WWW with unitywebrequest when it all works
         ///
 
         //Request object
-        WWW www = new WWW("http://localhost/unityprojdb/register.php", form);
+        string url = "http://omdomalom.atwebpages.com/unityprojdb/register.php";
+        WWW www = new WWW(url, form);
         //UnityWebRequest www = UnityWebRequest.Post("http://localhost/unityprojdb/register.php", form);
         yield return www;
         if (www.text[0] == '0')
@@ -42,7 +48,8 @@ public class Registration : MonoBehaviour
         }
         else
         {
-            EditorUtility.DisplayDialog("Error Occurred", "Registration failed. Error #" + www.text, "OK");
+            dialogManager.ShowDialog("Registration failed. Error #" + www.text);
+            //EditorUtility.DisplayDialog("Error Occurred", "Registration failed. Error #" + www.text, "OK");
 
             Debug.Log("Reg failed. Error code #" + www.text);
         }

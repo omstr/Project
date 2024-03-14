@@ -34,6 +34,8 @@ public class Game1 : MonoBehaviour
     public static List<int> scoreArray = new List<int>();
     public static int totalScore;
 
+    private DialogManager dialogManager;
+
     //public G1 g1
 
     private void Awake()
@@ -43,6 +45,7 @@ public class Game1 : MonoBehaviour
             UnityEngine.SceneManagement.SceneManager.LoadScene(0);
         }
 
+        dialogManager = transform.Find("DialogManager").GetComponent<DialogManager>();
        
         cubeGenerator = GameObject.FindObjectOfType<CubeGenerator>();
         if (cubeGenerator == null)
@@ -131,8 +134,8 @@ public class Game1 : MonoBehaviour
         form.AddField("attempts", DBManager.attempts);
         form.AddField("timestamp", DBManager.timestamp);
         form.AddField("game", DBManager.game);
-
-        WWW www = new WWW("http://localhost/unityprojdb/savedata.php", form);
+        string url = "http://omdomalom.atwebpages.com/unityprojdb/savedata.php";
+        WWW www = new WWW(url, form);
         yield return www;
 
         if (www.text[0] == '0')
@@ -142,7 +145,8 @@ public class Game1 : MonoBehaviour
         }
         else
         {
-            EditorUtility.DisplayDialog("Error Occurred", "Saving Data failed. Error #" + www.text, "OK");
+            dialogManager.ShowDialog("Saving Data failed. Error #" + www.text);
+            //EditorUtility.DisplayDialog("Error Occurred", "Saving Data failed. Error #" + www.text, "OK");
 
             Debug.Log("Save failed. Error #" + www.text);
         }

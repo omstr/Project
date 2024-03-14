@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class Grid : MonoBehaviour
 {
+    private DialogManager dialogManager;
     [SerializeField]
     private int gridWidth = 11, gridHeight = 11;
 
@@ -14,6 +15,10 @@ public class Grid : MonoBehaviour
     private CodeManager cm;
     private int checkpoints = 0, targets = 0;
 
+    private void Awake()
+    {
+        //dialogManager = transform.Find("DialogManager").GetComponent<DialogManager>();
+    }
     private void Start()
     {
         cm = GameObject.Find("Code").GetComponent<CodeManager>();
@@ -68,13 +73,23 @@ public class Grid : MonoBehaviour
             G3Script.totalScore += 1;
             G3Script.questionsAnsweredCorrectly += 1;
             Debug.Log("Checkpoint Hit! " + checkpoints + " Left!");
-        } 
+        }
+        else if (item.type == GridItem.ItemType.Target)
+        {
+            targets--;
+            item.ActiveObject.SetActive(false);
+            G3Script.sessionQsAnswered += 1;
+            G3Script.totalScore += 1;
+            G3Script.questionsAnsweredCorrectly += 1;
+            Debug.Log("target Hit! " + targets + " Left!");
+        }
         else if (item.type == GridItem.ItemType.Finish)
         {
             if (checkpoints == 0 && targets == 0)
             {
                 item.ActiveObject.SetActive(false);
-                EditorUtility.DisplayDialog("Game Won!", "Game Won!", "OK");
+                //EditorUtility.DisplayDialog("Game Won!", "Game Won!", "OK");
+                //dialogManager.ShowDialog("Game Won!");
                 G3Script.sessionQsAnswered += 1;
                 G3Script.totalScore += 1;
                 G3Script.questionsAnsweredCorrectly += 1;
@@ -83,8 +98,9 @@ public class Grid : MonoBehaviour
             else
             {
                 item.ActiveObject.SetActive(false);
-
-                EditorUtility.DisplayDialog("Game Lost", "Game Lost! " + targets + " Targets And " + checkpoints + " Checkpoints Are Left!", "OK");
+                //dialogManager.ShowDialog("Game Lost!");
+                //EditorUtility.DisplayDialog("Game Lost", "Game Lost! " + targets + " Targets And " + checkpoints + " Checkpoints Are Left!", "OK");
+                Debug.Log("Game Lost! ");
                 EndGame(false);
             }
 
@@ -115,7 +131,16 @@ public class Grid : MonoBehaviour
 
         if (won)
         {
-
+            string currentSceneName = SceneManager.GetActiveScene().name;
+            if (currentSceneName == "Game3")
+            {
+                SceneManager.LoadScene("G3L2");
+            }
+            else
+            {
+                int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+                SceneManager.LoadScene(currentSceneIndex + 1);
+            }
             //SceneManager.LoadScene() Load the scene after this one, make it work dynamically
             // Code to Move to Next Level!
         }

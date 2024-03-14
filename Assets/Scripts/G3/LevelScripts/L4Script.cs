@@ -1,10 +1,11 @@
 using Assets.Scripts.G3;
 using UnityEngine;
 
-public class L2Script : Level
+public class L4Script : Level
 {
     public override bool PreCompilationValidate(string code)
     {
-        return true;
+        if (code.Contains("do")) return true;
+        return false;
     }
 }

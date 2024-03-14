@@ -1,7 +1,7 @@
 using Assets.Scripts.G3;
 using UnityEngine;
 
-public class L2Script : Level
+public class L9Script : Level
 {
     public override bool PreCompilationValidate(string code)
     {

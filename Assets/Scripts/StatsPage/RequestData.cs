@@ -61,9 +61,9 @@ public class RequestData : MonoBehaviour
         form.AddField("game3_scores", "game3_scores"); // Add field for game2_scores
         ///TODO: Replace WWW with unitywebrequest when it all works
         //Request object
-
+        string url = "http://omdomalom.atwebpages.com/unityprojdb/requestdata.php";
         //UnityWebRequest www = UnityWebRequest.Post("http://localhost/unityprojdb/login.php", form);
-        using (UnityWebRequest www = UnityWebRequest.Post("http://localhost/unityprojdb/requestdata.php", form))
+        using (UnityWebRequest www = UnityWebRequest.Post(url, form))
         {
             yield return www.SendWebRequest();
 

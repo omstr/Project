@@ -345,6 +345,7 @@ public class CodeDisplay : MonoBehaviour
                     {
                         G2Script.totalScore += 2;
                         G2Script.questionsAnsweredCorrectly += 2;
+                        G2Script.sessionQsAnswered += 2;
                     }
                     
                     scoreDisplay.text = "Points: " + G2Script.totalScore;
@@ -362,6 +363,7 @@ public class CodeDisplay : MonoBehaviour
                     storedImage.sprite = redSprite;
                     storedImage.gameObject.SetActive(true);
                     G2Script.attempts += 1;
+                    G2Script.sessionQsAnswered += 1;
                     //tickImage.sprite = greyTickSprite;
                     //tickImage2.sprite = greyTickSprite;
                 }

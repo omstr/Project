@@ -24,7 +24,7 @@ public class InputHandler : MonoBehaviour
     private string inputString;
     private float delayInSeconds = 1f;
     public CubeGenerator cubeGenerator;
-    private GameObject prismObject;
+    private RectTransform prismObject;
     public Slider delaySlider;
     public List<int> intList = new List<int>();
     public List<int> sortedList = new List<int>();
@@ -32,6 +32,7 @@ public class InputHandler : MonoBehaviour
     public Image crossImage;
     public int maxNumbers = 9;
     public TextMeshProUGUI questionLabel;
+    private TextMeshProUGUI instructorText;
 
     private RectTransform CubeGenTransform;
 
@@ -43,11 +44,12 @@ public class InputHandler : MonoBehaviour
     private void Awake()
     {
         questionLabel = transform.Find("QuestionLabel").GetComponent<TextMeshProUGUI>();
+        instructorText = transform.Find("InstructorText").GetComponent<TextMeshProUGUI>();
     }
     private void Start()
     {
         cubeGenerator = GameObject.FindObjectOfType<CubeGenerator>();
-        prismObject = transform.Find("Prism").GetComponent<GameObject>();
+        prismObject = transform.Find("Prism").GetComponent<RectTransform>();
 
         CubeGenTransform = transform.Find("CubeGen").GetComponent<RectTransform>();
         textInputField.onEndEdit.AddListener(ValidateInput);
@@ -249,8 +251,8 @@ public class InputHandler : MonoBehaviour
 
         int size = sortedList.Count;
         bool swapped;
-
-        prismObject = GameObject.Find("Prism");
+        instructorText.gameObject.SetActive(false);
+        
         List<GameObject> cubeObjects = new List<GameObject>();
         cubeObjects = cubeGenerator.grabCubes();
         questionLabel.text = "";
@@ -353,7 +355,7 @@ public class InputHandler : MonoBehaviour
         List<int> prevPassList = new List<int>();
         int size = list.Count;
         bool swapped;
-        prismObject = GameObject.Find("Prism");
+        
         List<GameObject> cubeObjects = new List<GameObject>();
         cubeObjects = cubeGenerator.grabCubes();
         MovePrismAboveHighlightedObject(cubeObjects[0]);
@@ -418,14 +420,19 @@ public class InputHandler : MonoBehaviour
         int size = sortedList.Count;
         bool swapped;
         
-        prismObject = transform.Find("Prism").GetComponent<GameObject>();
+        //prismObject = transform.Find("Prism").GetComponent<GameObject>();
         
         Game1.attempts = 0;
         cubeObjects = cubeGenerator.grabCubes(); // NullReferenceException
         
         List<int> cubeNames = new List<int>();
-        
-        
+
+        instructorText.text = "Follow the logic of the bubble sort algorithm and drag a cube to it's correct position in each pass";
+        instructorText.gameObject.SetActive(true);
+
+        questionLabel.gameObject.SetActive(false);
+
+        prismObject.gameObject.SetActive(false);
         //MovePrismAboveHighlightedObject(cubeObjects[0]);
         do
         {
@@ -453,7 +460,7 @@ public class InputHandler : MonoBehaviour
                     sortedOutput.text = sortedString;
                     // Introduce a delay & wait for the drag & dropping
                     yield return StartCoroutine(WaitForUserSwap(cubeObjects));
-
+                    instructorText.gameObject.SetActive(false);
                     cubeNames = cubeGenerator.grabCubeNames();
                     // Compare cubeNames to sortedList after each pass
                     if (ListsAreEqual(cubeNames, sortedList))
@@ -466,7 +473,7 @@ public class InputHandler : MonoBehaviour
 
                         //SQL handling
                         game1.increaseBubbleScore();
-                        scoreLabel.text = "Points: " + Game1.totalScore;
+                        //scoreLabel.text = "Points: " + Game1.totalScore;
 
                         
                         Game1.questionsAnsweredCorrectly += 1;
@@ -479,12 +486,13 @@ public class InputHandler : MonoBehaviour
                         Debug.Log("The sorted list from the bubble sort" + sortedList);
                         //TODO: Incorrect Image:  fix incorrect image
                         //SpawnImageOverCube(, crossImage);
+                        tickImage.gameObject.SetActive(false);
                         crossImage.gameObject.SetActive(true);
                         output.text = "Incorrect";
                         Debug.Log("Sorted List: " + sortedList);
                         Debug.Log("PrevPass List: " + prevPassList);
                         sortedList = prevPassList;
-                        scoreLabel.text = "Points: " + Game1.totalScore;
+                        //scoreLabel.text = "Points: " + Game1.totalScore;
                         //TODO: if incorrect, don't actually swap the cubes, just place the incorrect image and keep the list the same
 
 
@@ -761,7 +769,7 @@ public class InputHandler : MonoBehaviour
         // Check if the highlightedObject is not null and the prismObject is assigned
         if (highlightedObject != null && prismObject != null)
         {
-            prismObject.SetActive(true);
+            prismObject.gameObject.SetActive(true);
             // Get the x-coordinate of the highlighted object
             float xCoordinate = highlightedObject.transform.position.x;
 
@@ -840,6 +848,7 @@ public class InputHandler : MonoBehaviour
     }
     public IEnumerator SteppedLinearSearchCoroutine(List<GameObject> CubeObjects, int target, Action<int> onComplete)
     {
+        instructorText.gameObject.SetActive(false);
         // Loop through each element in the list
         for (int i = 0; i < CubeObjects.Count; i++)
         {
@@ -923,7 +932,7 @@ public class InputHandler : MonoBehaviour
     }
     IEnumerator SteppedBinarySearchCoroutine(List<GameObject> cubes, int target, Action<int> onComplete)
     {
-        prismObject = transform.Find("Prism").GetComponent<GameObject>();
+        
         
         Game1 g1 = new Game1();
         List<int> list = cubeGenerator.grabCubeNames();
@@ -1006,12 +1015,13 @@ public class InputHandler : MonoBehaviour
         EnableCubeClickOnAllCubes();
         crossImage.gameObject.SetActive(false);
         tickImage.gameObject.SetActive(false);
-        prismObject = transform.Find("Prism").GetComponent<GameObject>();
+        
        
         Game1 g1 = new Game1();
         List<int> list = cubeGenerator.grabCubeNames();
         float adjustedDelay = delayInSeconds * delaySlider.value;
-
+        instructorText.text = "Click the correct midpoint of binary search for each pass";
+        instructorText.gameObject.SetActive(true);
 
 
 
@@ -1045,6 +1055,7 @@ public class InputHandler : MonoBehaviour
             //MoveTextAboveHighlightedObjectSearch(cubes[mid], target);
             Debug.Log("reached before");
             yield return StartCoroutine(WaitForUserClick(cubes));
+            instructorText.gameObject.SetActive(false);
             Debug.Log("reached after");
 
             List<GameObject> newCubes = cubeGenerator.grabCubes();

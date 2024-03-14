@@ -29,4 +29,31 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Game3.unity
     guid: b673ef6ff38db9748b6b0352f2c55a06
+  - enabled: 1
+    path: Assets/Scenes/G3Levels/G3L2.unity
+    guid: c3b8464789a03344c9b73c885dfb62fd
+  - enabled: 1
+    path: Assets/Scenes/G3Levels/G3L3.unity
+    guid: 2e020e4a6446e044bab54bfeb99f6796
+  - enabled: 1
+    path: Assets/Scenes/G3Levels/G3L4.unity
+    guid: 14435ab40a1597c48903e710d7157106
+  - enabled: 1
+    path: Assets/Scenes/G3Levels/G3L5.unity
+    guid: 038b70717b6007344854255c74fdac5f
+  - enabled: 1
+    path: Assets/Scenes/G3Levels/G3L6.unity
+    guid: be0c78e44d373274bb812f05f6c824f6
+  - enabled: 1
+    path: Assets/Scenes/G3Levels/G3L7.unity
+    guid: 8ca4410515a96ca4caa1456b764e0e69
+  - enabled: 1
+    path: Assets/Scenes/G3Levels/G3L8.unity
+    guid: 8b785d89ca1b4d141b07ffe4d9fcf77c
+  - enabled: 1
+    path: Assets/Scenes/G3Levels/G3L9.unity
+    guid: a6e932224329f7643ac7b323874ca6ad
+  - enabled: 1
+    path: Assets/Scenes/G3Levels/G3L10.unity
+    guid: d6d7dcf5529efa1449ac1cc5c26e7df3
   m_configObjects: {}

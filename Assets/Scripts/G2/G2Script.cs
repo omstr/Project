@@ -17,12 +17,14 @@ public class G2Script : MonoBehaviour
     public static int totalScore;
 
     public GameObject panelObj;
+    public DialogManager dialogManager;
     private void Awake()
     {
         if (DBManager.username == null)
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene(0);
         }
+        dialogManager = transform.Find("DialogManager").GetComponent<DialogManager>();
     }
         // Start is called before the first frame update
     void Start()
@@ -107,8 +109,8 @@ public class G2Script : MonoBehaviour
         form.AddField("timestamp", DBManager.timestamp);
         form.AddField("game", DBManager.game);
 
-
-        WWW www = new WWW("http://localhost/unityprojdb/savedata.php", form);
+        string url = "http://omdomalom.atwebpages.com/unityprojdb/savedata.php";
+        WWW www = new WWW(url, form);
         yield return www;
 
         if (www.text[0] == '0')
@@ -118,7 +120,8 @@ public class G2Script : MonoBehaviour
         }
         else
         {
-            EditorUtility.DisplayDialog("Error Occurred", "Saving Data failed. Error #" + www.text, "OK");
+            dialogManager.ShowDialog("Saving Data failed. Error #" + www.text);
+            //EditorUtility.DisplayDialog("Error Occurred", "Saving Data failed. Error #" + www.text, "OK");
             Debug.Log("Save failed. Error #" + www.text);
         }
 
