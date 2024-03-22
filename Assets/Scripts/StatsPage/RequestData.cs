@@ -62,6 +62,7 @@ public class RequestData : MonoBehaviour
         ///TODO: Replace WWW with unitywebrequest when it all works
         //Request object
         string url = "http://omdomalom.atwebpages.com/unityprojdb/requestdata.php";
+        //string url = "http://localhost/unityprojdb/requestdata.php";
         //UnityWebRequest www = UnityWebRequest.Post("http://localhost/unityprojdb/login.php", form);
         using (UnityWebRequest www = UnityWebRequest.Post(url, form))
         {

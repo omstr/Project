@@ -620,7 +620,6 @@ MonoBehaviour:
   level: {fileID: 538382167}
   bannedKeywords:
   - using
-  - while
 --- !u!114 &437476712
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -3151,7 +3151,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Methods: \r\n\nMoveForward();\r\nMoveBackward();\r\nRotateLeft();\r\nRotateRight();\r\n\r\nSpinTurret(float
+  m_text: "\nMethods: \r\n\nMoveForward();\r\nMoveBackward();\r\nRotateLeft();\r\nRotateRight();\r\n\r\nSpinTurret(float
     angle);\r\nFire();\r\n        \r\nSprites: \r\n\t<sprite name=\"halfblocker\">
     - bullets can't pass\n\t<sprite name=\"blocker\"> - nothing can pass\n\t<sprite
     name=\"checkpoint\"> - extra point\n\t<sprite name=\"target\"> - target"
@@ -3181,7 +3181,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 10.5
+  m_fontSize: 9.85
   m_fontSizeBase: 12
   m_fontWeight: 400
   m_enableAutoSizing: 1

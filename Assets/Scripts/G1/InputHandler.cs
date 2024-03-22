@@ -662,7 +662,7 @@ public class InputHandler : MonoBehaviour
         List<Color> initialColors = new List<Color>();
         foreach (var cube in cubeObjects)
         {
-            // Assuming the cubes have a component that changes their color
+            
             Renderer renderer = cube.GetComponent<Renderer>();
             if (renderer != null)
             {

@@ -35,9 +35,11 @@ public class CodeDisplay : MonoBehaviour
     public Sprite redSprite;
     public Sprite greyTickSprite;
     public Sprite greenTickSprite;
+    public TextAsset[] scriptAssets;
 
 
-    
+
+
 
     public int result; // for int comparisons
 
@@ -49,7 +51,18 @@ public class CodeDisplay : MonoBehaviour
     private bool isStringPartCorrect = false;
     private bool isIntPartCorrect = false;
 
-    private string q1ScriptPath = "Assets/Scripts/G2/Q1Fib.cs"; 
+    //private string q1ScriptPath = "Q1Fib"; 
+    //private string q2ScriptPath = "Q2";
+    //private string q3ScriptPath = "Q3";
+    //private string q4ScriptPath = "Q4";
+    //private string q5ScriptPath = "Q5";
+    //private string q6ScriptPath = "Q6";
+    //private string q7ScriptPath = "Q7";
+    //private string q8ScriptPath = "Assets/Resources/Q8.cs";
+    //private string q9ScriptPath = "Assets/Resources/Q9.cs";
+    //private string q10ScriptPath = "Assets/Resources/Q10.cs";
+
+    private string q1ScriptPath = "Assets/Scripts/G2/Q1Fib.cs";
     private string q2ScriptPath = "Assets/Scripts/G2/Q2.cs";
     private string q3ScriptPath = "Assets/Scripts/G2/Q3.cs";
     private string q4ScriptPath = "Assets/Scripts/G2/Q4.cs";
@@ -59,7 +72,6 @@ public class CodeDisplay : MonoBehaviour
     private string q8ScriptPath = "Assets/Scripts/G2/Q8.cs";
     private string q9ScriptPath = "Assets/Scripts/G2/Q9.cs";
     private string q10ScriptPath = "Assets/Scripts/G2/Q10.cs";
-    
 
     void Start()
     {
@@ -70,11 +82,15 @@ public class CodeDisplay : MonoBehaviour
         q3Button.onClick.AddListener(ShowQ3Code);
         q4Button.onClick.AddListener(ShowQ4Code);
         q5Button.onClick.AddListener(ShowQ5Code);
+        q6Button.onClick.AddListener(ShowQ6Code);
+        q7Button.onClick.AddListener(ShowQ7Code);
 
         userInputField.onEndEdit.AddListener(OnEndEdit);
         tickImage.gameObject.SetActive(true);
         tickImage2.gameObject.SetActive(false);
+        
     }
+   
     void Update()
     {
         
@@ -455,6 +471,8 @@ public class CodeDisplay : MonoBehaviour
         tickImage2.gameObject.SetActive(false);
         int n = Random.Range(1, 20);
         // Check if the Q1Fib.cs script file exists
+        //TextAsset scriptAsset = Resources.Load<TextAsset>(q1ScriptPath);
+        // Check if the Q1Fib.cs script file exists
         if (File.Exists(q1ScriptPath))
         {
             result = Q1Fib.Fib(n);
@@ -466,9 +484,9 @@ public class CodeDisplay : MonoBehaviour
 
             questionLabel.text = "What would the result be if n was " + n + "?";
 
-            
+
             codePanel.SetActive(true);
-            
+
         }
         else
         {
@@ -480,14 +498,14 @@ public class CodeDisplay : MonoBehaviour
         tickImage2.gameObject.SetActive(false);
         int rand1 = Random.Range(1, 20);
         int rand2 = Random.Range(1, 20);
-
-        //CHANGE PER QUESTION
+        //TextAsset scriptAsset = Resources.Load<TextAsset>(q2ScriptPath);
+        TextAsset scriptAsset = null;
         if (File.Exists(q2ScriptPath))
         {
             //CHANGE PER QUESTION
             result = Q2.CalculateGCD(rand1, rand2);
-            
-            
+
+
             //CHANGE PER QUESTION
             string code = File.ReadAllText(q2ScriptPath);
 
@@ -510,12 +528,12 @@ public class CodeDisplay : MonoBehaviour
         tickImage2.gameObject.SetActive(false);
         int a = Random.Range(1, 20);
         int b = Random.Range(1, 20);
-
+        TextAsset scriptAsset = Resources.Load<TextAsset>(q3ScriptPath);
         //CHANGE PER QUESTION
         if (File.Exists(q3ScriptPath))
         {
             //CHANGE PER QUESTION
-            result = Q3.Algorithm(a,b);
+            result = Q3.Algorithm(a, b);
 
             //CHANGE PER QUESTION
             string code = File.ReadAllText(q3ScriptPath);
@@ -538,7 +556,7 @@ public class CodeDisplay : MonoBehaviour
     {
         tickImage2.gameObject.SetActive(false);
         //int n = Random.Range(1, 20);
-
+        TextAsset scriptAsset = Resources.Load<TextAsset>(q4ScriptPath);
         //CHANGE PER QUESTION
         if (File.Exists(q4ScriptPath))
         {
@@ -567,8 +585,8 @@ public class CodeDisplay : MonoBehaviour
     {
         tickImage2.gameObject.SetActive(false);
         int n = Random.Range(1, 20);
-        
-        
+
+        TextAsset scriptAsset = Resources.Load<TextAsset>(q5ScriptPath);
         //CHANGE PER QUESTION
         if (File.Exists(q5ScriptPath))
         {
@@ -577,7 +595,7 @@ public class CodeDisplay : MonoBehaviour
 
             //CHANGE PER QUESTION
             string[] lines = File.ReadAllLines(q5ScriptPath);
-            string filteredCode = FilterCode(lines); 
+            string filteredCode = FilterCode(lines);
 
             codeText.text = filteredCode;
 
@@ -601,6 +619,7 @@ public class CodeDisplay : MonoBehaviour
 
         string strX = x.ToString();
         string strY = y.ToString();
+        TextAsset scriptAsset = Resources.Load<TextAsset>(q6ScriptPath);
 
         //CHANGE PER QUESTION
         if (File.Exists(q6ScriptPath))
@@ -630,6 +649,7 @@ public class CodeDisplay : MonoBehaviour
     {
         tickImage2.gameObject.SetActive(true);
         int randNum;
+        
         //CHANGE PER QUESTION
         if (File.Exists(q7ScriptPath))
         {
@@ -662,20 +682,20 @@ public class CodeDisplay : MonoBehaviour
             result = Q7.listOfOs.Count; // The amount of O's in the list
 
             //CHANGE PER QUESTION
+            //string[] lines = File.ReadAllLines(q7ScriptPath);
+            //string filteredCode = FilterCode(lines);
+
+            //CHANGE PER QUESTION
             string[] lines = File.ReadAllLines(q7ScriptPath);
             string filteredCode = FilterCode(lines);
 
             codeText.text = filteredCode;
-            Debug.Log("O count: " + result);
             //foreach (string str in expectedStrings)
             //{
             //    Debug.Log(str);
             //}
             string convertedString = string.Join(",", Q7.listOfOs);
-            foreach (char ch in convertedString)
-            {
-                Debug.Log(ch + ", ");
-            }
+            Debug.Log(convertedString);
             //TODO: CHANGE PER QUESTION
             questionLabel.text = "What will this output look like? What is the amount of O's printed? randNum = " + randNum + "\n \n Hint: enter in string,int format.";
 

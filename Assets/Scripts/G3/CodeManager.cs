@@ -99,7 +99,7 @@ public class CodeManager : MonoBehaviour
         grid.ResetGrid();
         
 
-        // TODO: May need some sort of validation to prevent malicious stuff yk. Can add more banned keywords if they are malicious!
+        // TODO: May need some sort of validation to prevent malicious stuff yk. Can add more banned keywords if they are malicious
         string code = codeInput.text;
 
         foreach (var word in bannedKeywords)
@@ -181,8 +181,8 @@ public class CodeManager : MonoBehaviour
         };
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
-            // You could optionally add 'assembly.FullName.Contains("System")' below to include common types like colletions!
-            // But I would investigate everything added because of potential mallicious classes. Otherwise this works well!
+            // could optionally add 'assembly.FullName.Contains("System")' below to include common types like colletions
+            // But would investigate everything added because of potential malicious classes. Otherwise this works well
             if (assembly.FullName.Contains("UnityEngine,") ||
                 assembly.FullName.Contains("Assembly-CSharp,") ||
                 assembly.FullName.Contains("UnityEngine.CoreModule,") ||

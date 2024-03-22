@@ -1849,6 +1849,14 @@ MonoBehaviour:
   redSprite: {fileID: 21300000, guid: 74258a02cda6f884394a4f142bfe8aa3, type: 3}
   greyTickSprite: {fileID: 21300000, guid: b996c794c5bbb9d40ad098479c535e37, type: 3}
   greenTickSprite: {fileID: 21300000, guid: 2a8dc89947902734195702e14f9ce693, type: 3}
+  scriptAssets:
+  - {fileID: 11500000, guid: e5919aaddcd660a47880485c8890738b, type: 3}
+  - {fileID: 11500000, guid: 7f81462952463904995e4fe9f914051a, type: 3}
+  - {fileID: 11500000, guid: 7004af07247c2bd428e6c32efa22739c, type: 3}
+  - {fileID: 11500000, guid: 0fe570d3232bd034d8f7b724368b5354, type: 3}
+  - {fileID: 11500000, guid: 41a24a4a6dcd1fd4f8322ccbf4463a6f, type: 3}
+  - {fileID: 11500000, guid: a2bf6a3ef650e1d439b6c2c8285dd6b9, type: 3}
+  - {fileID: 11500000, guid: 3c211fd6a3b4f2c4f9c24bc1934fb8e5, type: 3}
   result: 0
   strResult: 
   expectedStrings: []
